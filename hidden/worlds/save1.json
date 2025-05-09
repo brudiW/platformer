@@ -1,0 +1,27 @@
+{
+    "header": {
+        "savename": "save1",
+        "saveid": 1,
+        "created": "2025-05-09T08:33:14.230678"
+    },
+    "levels": {
+        "1-1": {
+            "unlocked": true,
+            "completed": false,
+            "time": -1
+        },
+        "1-2": {
+            "unlocked": false,
+            "completed": true,
+            "time": 10
+        }
+    },
+    "stats": {
+        "coins": 0,
+        "artefacts": {
+            "test": "test"
+        },
+        "enemysKilled": 0,
+        "timesDied": 0
+    }
+}
