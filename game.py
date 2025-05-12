@@ -6,6 +6,7 @@ from scripts.utils import load_image, load_images
 from scripts.entities import PhysicsEntity, Player
 from scripts.tilemap import Tilemap
 from scripts.gamesave import GameSave
+from scripts.item import Item, ShopItem, CollectableItem, OwnedItem
 
 class Game:
     def __init__(self):
