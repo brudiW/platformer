@@ -1,0 +1,13 @@
+{
+    "schal_der_leichtigkeit": {
+        "name": "Schal der Leichtigkeit",
+        "description": "Lässt dich leichter fühlen. Ermöglicht: Doppelsprung",
+        "effects": {
+            "double-jump": 1
+        },
+        "rarety": "uncommon",
+        "price": -1,
+        "durability": -1
+    }
+}
+            
