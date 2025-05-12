@@ -15,8 +15,8 @@ AUTOTILE_MAP = {
 }
 
 NEIGHBOR_OFFSETS = [(-1, 0), (-1, -1), (0, -1), (1, -1), (1, 0), (0, 0), (-1, 1), (0, 1), (1, 1)]
-PHYSICS_TILES = {'grass'}
-AUTOTILE_TYPES = {'grass'}
+PHYSICS_TILES = {'grass','stone'}
+AUTOTILE_TYPES = {'grass','stone','coin'}
 
 class Tilemap:
     def __init__(self, game, tile_size=16):
@@ -63,6 +63,17 @@ class Tilemap:
         return self.spawn[0], self.spawn[1]
 
     def render(self, surf, offset=(0, 0)):
+        for coin in self.game.coin_rects:  # Copy for safe removal
+            if self.game.player.rect().colliderect(coin):
+                self.game.coin_rects.remove(coin)
+                self.tilemap.pop(f"{int(coin.x/self.tile_size)};{int(coin.y/self.tile_size)}")
+                surf.blit(self.game.assets['player'], (coin.x -  offset[0], coin.y - offset[1]))
+            else:
+                surf.blit(self.game.assets['coin'][0], (coin.x - offset[0], coin.y - offset[1]))
+                
+        #print("Coin Length: ", len(self.game.coin_rects))
+
+            
         for tile in self.offgrid_tiles:
             if tile['type'] in self.game.assets:
                 asset = self.game.assets[tile['type']]
@@ -91,23 +102,17 @@ class Tilemap:
                         else:
                             surf.blit(asset, (tile['pos'][0] * self.tile_size - offset[0], tile['pos'][1] * self.tile_size - offset[1]))
         
-        for coin_rect in self.game.coin_rects:  # Copy for safe removal #falls nicht klappt: coin_rect durch coin ersetzen
-            if self.game.player.rect().colliderect(coin_rect):
-                print("Coin collected!")
-                self.game.coin_rects.remove(coin_rect)
-                
-            else:
-                surf.blit(self.game.assets['coin'][0], (coin_rect.x - offset[0], coin_rect.y - offset[1]))
+        
 
         for checkpoint in self.game.checkpoints:
-            if self.game.player.rect().colliderect(checkpoint):
+            if self.game.player_rect.colliderect(checkpoint):
                 self.game.spawn_location = (checkpoint.x, checkpoint.y)
                 self.game.checkpoints.remove(checkpoint)  # Optional: Remove checkpoint after activation
             else:
                 surf.blit(self.game.assets['checkpoint'], (checkpoint.x - offset[0], checkpoint.y - offset[1]))
         
         for mirror in self.game.mirrors[:]:
-            if self.game.player.rect().colliderect(mirror):
+            if self.game.player_rect.colliderect(mirror):
                 pygame.quit()
             else:
                 surf.blit(self.game.assets['mirror'], (mirror.x - offset[0], mirror.y - offset[1]))
