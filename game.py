@@ -10,7 +10,8 @@ from scripts.gamesave import GameSave
 class Game:
     def __init__(self):
         pygame.init()
-        self.joy = pygame.joystick.Joystick(0)
+        if pygame.joystick.get_count() > 0:
+            self.joy = pygame.joystick.Joystick(0)
 
         pygame.display.set_caption('Platformer')
         self.screen = pygame.display.set_mode((640, 480))
@@ -76,9 +77,10 @@ class Game:
         
     def run(self):
         while True:
-            self.axlX = self.joy.get_axis(0) # laufen l = -1, r = 1
-            self.rightBump = self.joy.get_axis(5)
-            self.btnA = self.joy.get_button(0) # springen
+            if pygame.joystick.get_count() > 0:
+                self.axlX = self.joy.get_axis(0) # laufen l = -1, r = 1
+                self.rightBump = self.joy.get_axis(5)
+                self.btnA = self.joy.get_button(0) # springen
             for level in self.worldlist:
                 self.gamesave.checkUnlock(level, self.SAVE_PATH)
             self.display.blit(self.assets['background'], (0, 0))
@@ -98,22 +100,23 @@ class Game:
                     sys.exit()
 
                 # Controller
-                if self.axlX > 0.1:
-                    self.movement[1] = True
-                    self.movement[0] = False
-                if self.axlX < -0.1:
-                    self.movement[0] = True
-                    self.movement[1] = False
-                if -0.1 < self.axlX and self.axlX < 0.1:
-                    self.movement[0], self.movement[1] = False, False
-                if self.btnA > 0.5: # JUMP
-                    #if self.jumps_left > 0:
-                    self.player.velocity[1] = -2.7
-                        #self.jumps_left -= 1
-                if self.rightBump > 0:
-                    self.run_speed = 1.5  # Erhöhe die Geschwindigkeit beim Rennen
-                if self.rightBump < 0:
-                    self.run_speed = 0.5  # Setze die Geschwindigkeit zurück
+                if pygame.joystick.get_count() > 0:
+                    if self.axlX > 0.1:
+                        self.movement[1] = True
+                        self.movement[0] = False
+                    if self.axlX < -0.1:
+                        self.movement[0] = True
+                        self.movement[1] = False
+                    if -0.1 < self.axlX and self.axlX < 0.1:
+                        self.movement[0], self.movement[1] = False, False
+                    if self.btnA > 0.5: # JUMP
+                        #if self.jumps_left > 0:
+                        self.player.velocity[1] = -2.7
+                            #self.jumps_left -= 1
+                    if self.rightBump > 0:
+                        self.run_speed = 1.5  # Erhöhe die Geschwindigkeit beim Rennen
+                    if self.rightBump < 0:
+                        self.run_speed = 0.5  # Setze die Geschwindigkeit zurück
 
                 # Keyboard
                 if event.type == pygame.KEYDOWN:
