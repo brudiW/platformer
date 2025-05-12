@@ -7,6 +7,7 @@ from scripts.entities import PhysicsEntity, Player
 from scripts.tilemap import Tilemap
 from scripts.gamesave import GameSave
 from scripts.item import Item, ShopItem, CollectableItem, OwnedItem
+from scripts.shop import Shop
 
 class Game:
     def __init__(self):
@@ -19,6 +20,12 @@ class Game:
         self.display = pygame.Surface((320, 240))
 
         self.clock = pygame.time.Clock()
+        
+        self.shop = Shop()
+        
+        #self.itemlist = 
+        
+        
         
         self.movement = [False, False]
         
