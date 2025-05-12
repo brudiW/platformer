@@ -10,9 +10,9 @@ class Item:
     
 class ShopItem(Item):
     def __init__(self, name, description, effect, texture, rarety, price):
-        
+        super().init(name, description, effect, texture, rarety)
         self.price = price
-        super(name, description, effect, texture, rarety)
+        
         
         
         
