@@ -10,6 +10,7 @@ class GameSave:
         self.header = {}
         self.levels = {}
         self.stats = {}
+        self.items = {}
 
     def create(self, saveName, path):
         self.saveName = saveName
@@ -39,6 +40,15 @@ class GameSave:
             "enemysKilled": 0,
             "timesDied": 0
         }
+        self.items = {
+            "test": {
+                "name": "test",
+                "description": "Test Item",
+                "effect": "none",
+                "rarety": "Impossible",
+                "durability": -1
+            }
+        }
         self.save(path)
 
     def load(self, path):
@@ -47,11 +57,12 @@ class GameSave:
         self.header = map_data['header']
         self.levels = map_data['levels']
         self.stats = map_data['stats']
+        self.items = map_data['items']
 
     def save(self, path):
         os.makedirs(os.path.dirname(path), exist_ok=True)
         with open(path, 'w') as f:
-            json.dump({'header': self.header, 'levels': self.levels, 'stats': self.stats}, f, indent=4)
+            json.dump({'header': self.header, 'levels': self.levels, 'stats': self.stats, 'items': self.items}, f, indent=4)
 
     def updateLevel(self, level, info, path):
         self.load(path)
