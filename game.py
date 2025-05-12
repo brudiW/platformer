@@ -26,7 +26,8 @@ class Game:
             'background': load_image('images/background.png'),
             'decor': load_images('images/decor'),
             'checkpoint': load_image('images/checkpoint/checkpoint.png'),
-            'mirror': load_image('images/mirror/mirror.png')
+            'mirror': load_image('images/mirror/mirror.png'),
+            'stone': load_images('images/tiles/stone'),
         }
 
         self.worldlist = [
@@ -34,7 +35,7 @@ class Game:
         ]
         
         self.tilemap = Tilemap(self, tile_size=16)
-        self.tilemap.load('assets/maps/map.json')
+        self.tilemap.load('assets/maps/1-1.json')
 
         self.gamesave = GameSave()
         self.SAVE_PATH = 'hidden/worlds/save1.json'
@@ -47,6 +48,7 @@ class Game:
         self.scroll = [0, 0]
         
         self.jumps_left = 2  # Initialize jumps_left to allow double jumps
+        self.run_speed = 2  # Zusätzliche Geschwindigkeit beim Rennen
 
         self.checkpoints = []
         self.mirrors = []
@@ -86,19 +88,25 @@ class Game:
                     pygame.quit()
                     sys.exit()
                 if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_LEFT: # MOVE LEFT
+                    if event.key == pygame.K_LEFT:  # MOVE LEFT
                         self.movement[0] = True
-                    if event.key == pygame.K_RIGHT: # MOVE RIGHT
+                    if event.key == pygame.K_RIGHT:  # MOVE RIGHT
                         self.movement[1] = True
-                    if event.key == pygame.K_SPACE: # JUMP
+                    if event.key == pygame.K_SPACE:  # JUMP
                         if self.jumps_left > 0:
                             self.player.velocity[1] = -3
                             self.jumps_left -= 1
+                    if event.key == pygame.K_LSHIFT:  # RUN
+                        self.run_speed = 1.5  # Erhöhe die Geschwindigkeit beim Rennen
                 if event.type == pygame.KEYUP:
                     if event.key == pygame.K_LEFT:
                         self.movement[0] = False
                     if event.key == pygame.K_RIGHT:
                         self.movement[1] = False
+                    if event.key == pygame.K_LSHIFT:  # STOP RUNNING
+                        self.run_speed = 0.5  # Setze die Geschwindigkeit zurück
+                        
+            self.player.update(self.tilemap, ((self.movement[1] - self.movement[0]) * self.run_speed, 0))
             
             if self.player.collisions['down']:
                 self.jumps_left = 2  # Reset jumps_left when the player lands
