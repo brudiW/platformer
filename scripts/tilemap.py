@@ -103,14 +103,14 @@ class Tilemap:
         
 
         for checkpoint in self.game.checkpoints:
-            if self.game.player_rect.colliderect(checkpoint):
+            if self.game.player.rect().colliderect(checkpoint):
                 self.game.spawn_location = (checkpoint.x, checkpoint.y)
                 self.game.checkpoints.remove(checkpoint)  # Optional: Remove checkpoint after activation
             else:
                 surf.blit(self.game.assets['checkpoint'], (checkpoint.x - offset[0], checkpoint.y - offset[1]))
         
         for mirror in self.game.mirrors[:]:
-            if self.game.player_rect.colliderect(mirror):
+            if self.game.player.rect().colliderect(mirror):
                 pygame.quit()
             else:
                 surf.blit(self.game.assets['mirror'], (mirror.x - offset[0], mirror.y - offset[1]))
