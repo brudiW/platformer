@@ -91,13 +91,13 @@ class Tilemap:
                         else:
                             surf.blit(asset, (tile['pos'][0] * self.tile_size - offset[0], tile['pos'][1] * self.tile_size - offset[1]))
         
-        for coin in self.game.coin_rects:  # Copy for safe removal
-            if self.game.player.rect().colliderect(coin):
+        for coin_rect in self.game.coin_rects:  # Copy for safe removal #falls nicht klappt: coin_rect durch coin ersetzen
+            if self.game.player.rect().colliderect(coin_rect):
                 print("Coin collected!")
-                self.game.coin_rects.remove(coin)
+                self.game.coin_rects.remove(coin_rect)
                 
             else:
-                surf.blit(self.game.assets['coin'][0], (coin.x - offset[0], coin.y - offset[1]))
+                surf.blit(self.game.assets['coin'][0], (coin_rect.x - offset[0], coin_rect.y - offset[1]))
 
         for checkpoint in self.game.checkpoints:
             if self.game.player.rect().colliderect(checkpoint):
