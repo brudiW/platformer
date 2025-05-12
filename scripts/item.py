@@ -10,7 +10,7 @@ class Item:
     
 class ShopItem(Item):
     def __init__(self, name, description, effect, texture, rarety, price):
-        super().init(name, description, effect, texture, rarety)
+        super().__init__(name, description, effect, texture, rarety)
         self.price = price
         
         
@@ -19,14 +19,13 @@ class ShopItem(Item):
 class CollectableItem(Item):
     def __init__(self, name, description, effect, texture, rarety):
         
-        super(name, description, effect, texture, rarety)
+        super().__init__(name, description, effect, texture, rarety)
     
     
 class OwnedItem(Item):
     def __init__(self, name, description, effect, texture, rarety, durability):
-        
+        super().__init__(name, description, effect, texture, rarety)
         self.durability = durability
-        super(name, description, effect, texture, rarety)
         
     def use(self):
         if not self.durability == -1 and self.durability > 0:
