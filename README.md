@@ -3,18 +3,18 @@ out platformer
 
 
 ## Controller Mapping (Tested with XBox Controller):
-Left Stick:
+### Left Stick:
 
 Left -> Right   - Axis 0
 Up   -> Down    - Axis 1
-Right Stick:
+### Right Stick:
 
 Left -> Right   - Axis 4
 Up   -> Down    - Axis 3
-Left Trigger & Right Trigger:
+### Left Trigger & Right Trigger:
 
 RT -> LT        - Axis 2
-Buttons:
+### Buttons:
 
 A Button        - Button 0
 B Button        - Button 1
@@ -26,7 +26,7 @@ Back Button     - Button 6
 Start Button    - Button 7
 L. Stick In     - Button 8
 R. Stick In     - Button 9
-Hat/D-pad:
+### Hat/D-pad:
 
 Down -> Up      - Y Axis
 Left -> Right   - X Axis
