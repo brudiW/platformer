@@ -2,7 +2,7 @@
 out platformer
 
 
-Controller Mapping (Tested with XBox Controller):
+## Controller Mapping (Tested with XBox Controller):
 Left Stick:
 
 Left -> Right   - Axis 0
