@@ -67,11 +67,9 @@ class Tilemap:
             if self.game.player.rect().colliderect(coin):
                 self.game.coin_rects.remove(coin)
                 self.tilemap.pop(f"{int(coin.x/self.tile_size)};{int(coin.y/self.tile_size)}")
-                surf.blit(self.game.assets['player'], (coin.x -  offset[0], coin.y - offset[1]))
             else:
                 surf.blit(self.game.assets['coin'][0], (coin.x - offset[0], coin.y - offset[1]))
                 
-        #print("Coin Length: ", len(self.game.coin_rects))
 
             
         for tile in self.offgrid_tiles:
