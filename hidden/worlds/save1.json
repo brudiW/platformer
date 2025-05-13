@@ -23,5 +23,6 @@
         },
         "enemysKilled": 0,
         "timesDied": 0
-    }
+    },
+    "items": {}
 }
