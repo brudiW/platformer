@@ -13,9 +13,10 @@ from scripts.item import Item, ShopItem, CollectableItem, OwnedItem, Items
 class Game:
     def __init__(self):
         pygame.init()
-        if pygame.joystick.get_count() > 0:
+        if pygame.joystick.get_count() > 0: # Controller, falls vorhanden
             self.joy = pygame.joystick.Joystick(0)
 
+        # Programm Fenster erstellung
         pygame.display.set_caption('Platformer')
         self.screen = pygame.display.set_mode((640, 480))
         self.display = pygame.Surface((320, 240))
@@ -26,11 +27,9 @@ class Game:
 
         self.items.loadItems('hidden/items.json')
         
+        self.movement = [False, False] # links rechts bewegen
         
-        
-        self.movement = [False, False]
-        
-        self.assets = {
+        self.assets = { # Assets
             'grass': load_images('images/tiles/grass'),
             'coin': load_images('images/coin'),
             'player': load_image('images/checkpoint/checkpoint.png'),
@@ -45,18 +44,19 @@ class Game:
             "1-1", "1-2"
         ]
         
-        self.tilemap = Tilemap(self, tile_size=16)
+        self.tilemap = Tilemap(self, tile_size=16) # Map Laden
         self.tilemap.load('assets/maps/1-1.json')
 
+        # Spielstand laden
         self.gamesave = GameSave()
         self.SAVE_PATH = 'hidden/worlds/save1.json'
-        self.gamesave.updateLevel("1-2", {"unlocked": True,"completed": True, "time": 10}, self.SAVE_PATH)
-        print(self.gamesave.getCoins(self.SAVE_PATH))
+        self.gamesave.updateLevel("1-2", {"unlocked": True,"completed": True, "time": 10}, self.SAVE_PATH) # // DEBUG
+        print(self.gamesave.getCoins(self.SAVE_PATH)) # // DEBUG
 
 
-        self.player = Player(self, (self.tilemap.playerSpawn()[0], self.tilemap.playerSpawn()[1]), (8, 15))
+        self.player = Player(self, (self.tilemap.playerSpawn()[0], self.tilemap.playerSpawn()[1]), (8, 15)) # Player Erstellen
 
-        self.scroll = [0, 0]
+        self.scroll = [0, 0] # Kameraposition initialisieren
         
         self.jumps_left = 1  # Initialize jumps_left to allow double jumps
         self.run_speed = 0.5  # Zusätzliche Geschwindigkeit beim Rennen
@@ -64,32 +64,37 @@ class Game:
         self.checkpoints = []
         self.mirrors = []
         self.coin_rects = []
-        self.off_grid_coin_rects = []
+        self.off_grid_coin_rects = [] # Rule 1: No Offgrid Coins
+
         self.player_lives = 3
         self.spawn_location = (self.tilemap.playerSpawn())  # Default spawn location
+
+        # Pause Initialization
         self.pause = False
         self.changePauseState = True
 
-        self.energy = 100
+        self.energy = 100 # Energie, z.B. für Sprinten
 
         # Dynamically add checkpoints based on map data or predefined positions
-        for tile in self.tilemap.tilemap.values():
+        for tile in self.tilemap.tilemap.values(): # Adding Effect Tiles
             if tile['type'] == 'checkpoint':
                 checkpoint_rect = pygame.Rect(tile['pos'][0] * self.tilemap.tile_size, tile['pos'][1] * self.tilemap.tile_size, self.tilemap.tile_size, self.tilemap.tile_size)
                 self.checkpoints.append(checkpoint_rect)
             if tile['type'] == 'mirror':
                 mirror_rect = pygame.Rect(tile['pos'][0] * self.tilemap.tile_size, tile['pos'][1] * self.tilemap.tile_size, self.tilemap.tile_size, self.tilemap.tile_size)
                 self.mirrors.append(mirror_rect)
-            if tile['type'] == 'coin':
+            if tile['type'] == 'coin': 
                 coin_rect = pygame.Rect(tile['pos'][0] * self.tilemap.tile_size, tile['pos'][1] * self.tilemap.tile_size, self.tilemap.tile_size, self.tilemap.tile_size)
                 self.coin_rects.append(coin_rect)
-        for tile in self.tilemap.offgrid_tiles:
+        for tile in self.tilemap.offgrid_tiles: # RUle 1: No Offgrid Coins
             if tile['type'] == 'coin':
                 coin_rect = pygame.Rect(tile['pos'][0], tile['pos'][1], self.tilemap.tile_size, self.tilemap.tile_size)
                 self.off_grid_coin_rects.append(coin_rect)
         
     def run(self):
+        #Main Game Loop
         while True:
+            # falls Controller vorhanden
             if pygame.joystick.get_count() > 0:
                 self.axlX = self.joy.get_axis(0) # laufen l = -1, r = 1
                 self.rightBump = self.joy.get_axis(5)
@@ -210,16 +215,18 @@ class Game:
                 pygame.display.set_caption('Platformer')
                 pygame.display.update()
                 self.clock.tick(60)
-            if self.pause:
+            if self.pause: # PAUSE MENU
                 pygame.display.set_caption('Platformer (Paused)')
                 font = pygame.font.Font(None, 36)
                 text = pygame.font.Font.render(font, "Paused", True, (255, 255, 255))
-                continue_text = pygame.font.Font.render(font, "CONTINUE", True, (255, 255, 255))
-                restart_text = pygame.font.Font.render(font, "RESTART", True, (255, 255, 255))
-                main_menu_text = pygame.font.Font.render(font, "MAIN MENU", True, (255, 255, 255))
+                continue_text = pygame.font.Font.render(pygame.font.Font(None, 24), "CONTINUE", True, (255, 255, 255))
+                restart_text = pygame.font.Font.render(pygame.font.Font(None, 24), "RESTART", True, (255, 255, 255))
+                main_menu_text = pygame.font.Font.render(pygame.font.Font(None, 24), "MAIN MENU", True, (255, 255, 255))
                 self.display.blit(text, (self.display.get_width() / 2 - text.get_width() / 2, self.display.get_height() / 2 - self.display.get_height() / 4 - text.get_height() / 2))
-                pygame.draw.rect(self.display, (0, 190, 0), (self.display.get_width() / 2 - text.get_width() / 2 - 10, self.display.get_height() / 2 - self.display.get_height() / 8 - text.get_height() / 2, text.get_width() + 20, text.get_height() + 20))
-                self.display.blit(continue_text, (self.display.get_width() / 2 - continue_text.get_width() / 2, self.display.get_height() / 2 - self.display.get_height() / 4 + text.get_height() / 2))
+                pygame.draw.rect(self.display, (0, 190, 0), (self.display.get_width() / 2 - text.get_width() / 2 - 10, self.display.get_height() / 2 - self.display.get_height() / 8 - text.get_height() / 2, text.get_width() + 20, text.get_height() - 3))
+                pygame.draw.rect(self.display, (0, 190, 0), (self.display.get_width() / 2 - text.get_width() / 2 - 10, self.display.get_height() / 2 - self.display.get_height() / 4 + text.get_height() + continue_text.get_height() - 1.5, text.get_width() + 20, text.get_height() -3))
+                pygame.draw.rect(self.display, (0, 190, 0), (self.display.get_width() / 2 - text.get_width() / 2 - 10, self.display.get_height() / 2 - self.display.get_height() / 8 - text.get_height() + continue_text.get_height() + restart_text.get_height(), text.get_width() + 20, text.get_height() - 3))
+                self.display.blit(continue_text, (self.display.get_width() / 2 - continue_text.get_width() / 2, self.display.get_height() / 2 - self.display.get_height() / 8 - text.get_height() / 2 + 2))
                 self.display.blit(restart_text, (self.display.get_width() / 2 - restart_text.get_width() / 2, self.display.get_height() / 2 - self.display.get_height() / 4 + text.get_height() + continue_text.get_height()))
                 self.display.blit(main_menu_text, (self.display.get_width() / 2 - main_menu_text.get_width() / 2, self.display.get_height() / 2 - self.display.get_height() / 4 + text.get_height() + continue_text.get_height() + restart_text.get_height()))
                 self.screen.blit(pygame.transform.scale(self.display, self.screen.get_size()), (0, 0))
