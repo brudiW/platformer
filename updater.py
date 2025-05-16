@@ -8,7 +8,7 @@ from io import BytesIO
 CURRENT_VERSION = "InDev 0.0.1"
 VERSION_JSON_URL = "https://github.com/brudiW/platformer/blob/main/version.json"
 ALLOWED_UPDATE_EXTENSIONS = {".py", ".pyc", ".pyo"}  # Only game logic
-ALLOWED_UPDATE_FOLDERS = {"", "src", "core", "engine"}  # Adjust to match your code structure
+ALLOWED_UPDATE_FOLDERS = {"", "src"}  # Adjust to match your code structure
 
 def is_code_file(path):
     _, ext = os.path.splitext(path)
