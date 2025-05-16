@@ -11,7 +11,8 @@
             "price": -1,
             "durability": -1,
             "unlocked": true,
-            "type": "owned"
+            "type": "owned",
+            "item-code": "schal_der_leichtigkeit.py"
         }
     ]
 }

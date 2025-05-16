@@ -1,6 +1,31 @@
 import pygame
 import json
 
+class ItemLoader:
+    def __init__(self, game):
+        self.game = game
+        self.items = []
+
+    def load_itemCode(self):
+        item_root = 'hidden/items'
+        for item_name in os.listdir(item_root):
+            item_file = os.path.join(item_root, item_name)
+            if os.path.isfile(item_file):
+                with open(item_file, 'r') as f:
+                    code = f.read()
+                item_globals = {
+                    'game': self.game,
+                    'register_hook': self.register_hook,
+                }
+                exec(code, item_globals)
+
+    def register_hook(self, hook_func):
+        self.items.append(hook_func)
+
+    def update(self):
+        for hook in self.mods:
+            hook()
+
 class Items:
     def __init__(self, game):
         self.game = game
@@ -64,6 +89,9 @@ class Item:
 
     def load_texture(self):
         return self.texture
+        
+    def getEffect(self):
+        return self.effect
     
 class ShopItem(Item):
     def __init__(self, name, description, effect, texture, rarety, price, game):

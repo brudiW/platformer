@@ -8,7 +8,7 @@ from scripts.utils import load_image, load_images
 from scripts.entities import PhysicsEntity, Player
 from scripts.tilemap import Tilemap
 from scripts.gamesave import GameSave
-from scripts.item import Item, ShopItem, CollectableItem, OwnedItem, Items
+from scripts.item import Item, ShopItem, CollectableItem, OwnedItem, Items, ItemLoader
 from scripts.modloader import ModLoader
 
 class Game:
@@ -17,8 +17,10 @@ class Game:
         if pygame.joystick.get_count() > 0: # Controller, falls vorhanden
             self.joy = pygame.joystick.Joystick(0)
             
-        self.mod_loader = ModLoader(self)
-        self.mod_loader.load_mods()
+        #self.mod_loader = ModLoader(self)
+        #self.mod_loader.load_mods()
+        self.item_loader = ItemLoader(self)
+        self.item_loader.load_itemCode()
 
         # Programm Fenster erstellung
         pygame.display.set_caption('Platformer')
@@ -121,7 +123,8 @@ class Game:
     def run(self):
         #Main Game Loop
         while True:
-            self.mod_loader.update() # MODS // SPÄTER WIEDER EINBAUEN
+            #self.mod_loader.update() # MODS // SPÄTER WIEDER EINBAUEN
+            self.item_loader.update()
             # falls Controller vorhanden
             if pygame.joystick.get_count() > 0:
                 self.axlX = self.joy.get_axis(0) # laufen l = -1, r = 1
