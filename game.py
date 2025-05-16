@@ -21,11 +21,11 @@ class Game:
         self.screen = pygame.display.set_mode((640, 480))
         self.display = pygame.Surface((320, 240))
 
-        self.clock = pygame.time.Clock()
+        self.clock = pygame.time.Clock() # Game Clock
         
-        self.items = Items(self)
+        self.items = Items(self) # Items Klasse laden
 
-        self.items.loadItems('hidden/items.json')
+        self.items.loadItems('hidden/items.json') # Items aus hidden/items.json (Liste aller Items) laden
         
         self.movement = [False, False] # links rechts bewegen
         
@@ -67,6 +67,7 @@ class Game:
         self.off_grid_coin_rects = [] # Rule 1: No Offgrid Coins
 
         self.player_lives = 3
+        self.health_points = 6
         self.spawn_location = (self.tilemap.playerSpawn())  # Default spawn location
 
         # Pause Initialization
@@ -235,6 +236,15 @@ class Game:
                     self.jumps_left = 1  # Reset jumps_left when the player lands
 
                 if self.player.rect().y > self.display.get_height():
+                    self.player_lives -= 1
+                    if self.player_lives > 0:
+                        self.player.pos[0], self.player.pos[1] = self.spawn_location[0], self.spawn_location[1] - 2
+                    else:
+                        t = pygame.time.get_ticks()
+                        print(t/1000)
+                        pygame.quit()
+                        sys.exit()
+                if self.health_point <= 0:
                     self.player_lives -= 1
                     if self.player_lives > 0:
                         self.player.pos[0], self.player.pos[1] = self.spawn_location[0], self.spawn_location[1] - 2
