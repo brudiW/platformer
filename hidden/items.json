@@ -1,8 +1,9 @@
 {
-    "items": {
-        "schal_der_leichtigkeit": {
+    "items":[
+        {
             "name": "Schal der Leichtigkeit",
             "description": "Lässt dich leichter fühlen. Ermöglicht: Doppelsprung",
+            "texture": "schal_der_leichtigkeit",
             "effects": {
                 "double-jump": 1
             },
@@ -10,7 +11,7 @@
             "price": -1,
             "durability": -1,
             "unlocked": true,
-            "type": "collectable"
+            "type": "owned"
         }
-    }
+    ]
 }
