@@ -121,7 +121,7 @@ class Game:
     def run(self):
         #Main Game Loop
         while True:
-            #self.mod_loader.update() # MODS // SPÄTER WIEDER EINBAUEN
+            self.mod_loader.update() # MODS // SPÄTER WIEDER EINBAUEN
             # falls Controller vorhanden
             if pygame.joystick.get_count() > 0:
                 self.axlX = self.joy.get_axis(0) # laufen l = -1, r = 1
