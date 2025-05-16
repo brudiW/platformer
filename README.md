@@ -5,15 +5,15 @@ out platformer
 ## Controller Mapping (Tested with XBox Controller):
 ### Left Stick:
 
-Left -> Right   - Axis 0
-Up   -> Down    - Axis 1
+- Left -> Right   - Axis 0
+- Up   -> Down    - Axis 1
 ### Right Stick:
 
-Left -> Right   - Axis 4
-Up   -> Down    - Axis 3
+- Left -> Right   - Axis 4
+- Up   -> Down    - Axis 3
 ### Left Trigger & Right Trigger:
 
-RT -> LT        - Axis 2
+- RT -> LT        - Axis 2
 ### Buttons:
 
 A Button        - Button 0
