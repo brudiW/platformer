@@ -24,8 +24,7 @@ class Tilemap:
         self.tile_size = tile_size
         self.header = {}
         self.tilemap = {}
-        self.offgrid_tiles = []
-    
+        self.offgrid_tiles = {}    
     def tiles_around(self, pos):
         tiles = []
         tile_loc = (int(pos[0] // self.tile_size), int(pos[1] // self.tile_size))
@@ -75,7 +74,7 @@ class Tilemap:
         for coin in self.game.off_grid_coin_rects:
             if self.game.player.rect().colliderect(coin):
                 self.game.off_grid_coin_rects.remove(coin)
-                self.offgrid_tiles.pop(f"{coin.x};{coin.y}")
+                self.offgrid_tiles.remove(coin)
             else:
                 surf.blit(self.game.assets['coin'][0], (coin.x - offset[0], coin.y - offset[1]))
 
@@ -111,14 +110,14 @@ class Tilemap:
         
 
         for checkpoint in self.game.checkpoints:
-            if self.game.player_rect.colliderect(checkpoint):
+            if self.game.player.rect().colliderect(checkpoint):
                 self.game.spawn_location = (checkpoint.x, checkpoint.y)
                 self.game.checkpoints.remove(checkpoint)  # Optional: Remove checkpoint after activation
             else:
                 surf.blit(self.game.assets['checkpoint'], (checkpoint.x - offset[0], checkpoint.y - offset[1]))
         
         for mirror in self.game.mirrors[:]:
-            if self.game.player_rect.colliderect(mirror):
+            if self.game.player.rect().colliderect(mirror):
                 pygame.quit()
             else:
                 surf.blit(self.game.assets['mirror'], (mirror.x - offset[0], mirror.y - offset[1]))
