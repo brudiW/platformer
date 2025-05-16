@@ -6,10 +6,10 @@ import json
 from io import BytesIO
 
 # Your current game version
-CURRENT_VERSION = "1.0.0"
+CURRENT_VERSION = "0.0.1"
 
 # URL to your version.json
-VERSION_JSON_URL = "https://yourserver.com/version.json"
+VERSION_JSON_URL = "https://github.com/brudiW/platformer/blob/main/version.json"
 
 def check_for_update():
     try:
