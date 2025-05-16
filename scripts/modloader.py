@@ -7,7 +7,7 @@ class ModLoader:
         self.mods = []
 
     def load_mods(self):
-        mod_root = 'mods'
+        mod_root = 'assets/mods'
         for mod_name in os.listdir(mod_root):
             mod_path = os.path.join(mod_root, mod_name)
             if os.path.isdir(mod_path):
