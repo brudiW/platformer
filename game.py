@@ -90,6 +90,9 @@ class Game:
             if tile['type'] == 'coin':
                 coin_rect = pygame.Rect(tile['pos'][0], tile['pos'][1], self.tilemap.tile_size, self.tilemap.tile_size)
                 self.off_grid_coin_rects.append(coin_rect)
+
+    def inWorld_ItemSelect(self, itemslot):
+        pygame.draw.circle(self.display, (10, 10, 10), (self.display.get_width() / 2, self.display.get_height() / 2), 100, 50, True, True, True, True)
         
     def run(self):
         #Main Game Loop
@@ -97,6 +100,10 @@ class Game:
             # falls Controller vorhanden
             if pygame.joystick.get_count() > 0:
                 self.axlX = self.joy.get_axis(0) # laufen l = -1, r = 1
+                self.axlY = self.joy.get_axis(1)
+                self.axrX = self.joy.get_axis(2)
+                self.axrY = self.joy.get_axis(3)
+                self.leftBump = self.joy.get_axis(4)
                 self.rightBump = self.joy.get_axis(5)
                 self.btnA = self.joy.get_button(0) # springen
                 self.startBTN = self.joy.get_button(7) # pause
@@ -126,6 +133,37 @@ class Game:
                             self.run_speed = 1.5  # Erhöhe die Geschwindigkeit beim Rennen
                         if self.rightBump < 0 or self.energy <= 0:
                             self.run_speed = 0.5  # Setze die Geschwindigkeit zurück
+
+                        if self.axrX < -0.3:
+                            if self.axrY > 0.3:
+                                print("Unten links")
+                                self.inWorld_ItemSelect("bottomleft")
+                            elif self.axrY > -0.3 and self.axrY < 0.3:
+                                print("Links")
+                                self.inWorld_ItemSelect("left")
+                            elif self.axrY < -0.3:
+                                print("Oben links")
+                                self.inWorld_ItemSelect("topleft")
+                        elif self.axrX > 0.3:
+                            if self.axrY > 0.3:
+                                print("Unten rechts")
+                                self.inWorld_ItemSelect("bottomright")
+                            elif self.axrY > -0.3 and self.axrY < 0.3:
+                                print("Rechts")
+                                self.inWorld_ItemSelect("right")
+                            elif self.axrY < -0.3:
+                                print("Oben rechts")
+                                self.inWorld_ItemSelect("topright")
+                        elif self.axrX > -0.3 and self.axlX < 0.3:
+                            if self.axrY > 0.3:
+                                print("Unten")
+                                self.inWorld_ItemSelect("bottom")
+                            elif self.axrY < -0.3:
+                                print("Oben")
+                                self.inWorld_ItemSelect("top")
+                            elif self.axrY > -0.3 and self.axrY < 0.3:
+                                pass
+                        #print(f"Right Stick X: {self.axrX}, Right Stick Y: {self.axrY}")
 
                     if self.startBTN > 0.5 and not self.pause:
                         if self.changePauseState:
