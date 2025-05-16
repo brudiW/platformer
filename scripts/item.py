@@ -1,5 +1,6 @@
 import pygame
 import json
+import os
 
 class ItemLoader:
     def __init__(self, game):
