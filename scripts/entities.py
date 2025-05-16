@@ -42,6 +42,7 @@ class PhysicsEntity:
                     entity_rect.top = rect.bottom
                     self.collisions['up'] = True
                 self.pos[1] = entity_rect.y
+        #print(self.pos)
                 
         if movement[0] > 0:
             self.flip = False
