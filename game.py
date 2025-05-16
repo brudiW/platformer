@@ -9,7 +9,7 @@ from scripts.entities import PhysicsEntity, Player
 from scripts.tilemap import Tilemap
 from scripts.gamesave import GameSave
 from scripts.item import Item, ShopItem, CollectableItem, OwnedItem, Items
-from scripts.modloader import Modloader
+from scripts.modloader import ModLoader
 
 class Game:
     def __init__(self):
@@ -17,8 +17,9 @@ class Game:
         if pygame.joystick.get_count() > 0: # Controller, falls vorhanden
             self.joy = pygame.joystick.Joystick(0)
             
-		self.mod_loader = ModLoader(self)
-		self.mod_loader.load_mods()
+        self.mod_loader = ModLoader(self)
+        self.mod_loader.load_mods()
+
         # Programm Fenster erstellung
         pygame.display.set_caption('Platformer')
         self.screen = pygame.display.set_mode((640, 480))
@@ -29,6 +30,25 @@ class Game:
         self.items = Items(self) # Items Klasse laden
 
         self.items.loadItems('hidden/items.json') # Items aus hidden/items.json (Liste aller Items) laden
+        self.items.list_items("owned")
+        #self.equpped_items = [] # Ausgerüstete Items
+        self.item_slots = {
+            "top": None,
+            "bottom": None,
+            "left": None,
+            "right": None,
+            "topleft": None,
+            "topright": None,
+            "bottomleft": None,
+            "bottomright": None,
+            "armor": None,
+            "accessory": None
+        }
+        for item in self.items.owned_items.values():
+            item.equip("accessory")
+        
+        for itemslot in self.item_slots.values():
+            print(f"{itemslot}")
         
         self.movement = [False, False] # links rechts bewegen
         
@@ -101,6 +121,7 @@ class Game:
     def run(self):
         #Main Game Loop
         while True:
+            #self.mod_loader.update() # MODS // SPÄTER WIEDER EINBAUEN
             # falls Controller vorhanden
             if pygame.joystick.get_count() > 0:
                 self.axlX = self.joy.get_axis(0) # laufen l = -1, r = 1
@@ -247,7 +268,7 @@ class Game:
                         print(t/1000)
                         pygame.quit()
                         sys.exit()
-                if self.health_point <= 0:
+                if self.health_points <= 0:
                     self.player_lives -= 1
                     if self.player_lives > 0:
                         self.player.pos[0], self.player.pos[1] = self.spawn_location[0], self.spawn_location[1] - 2
@@ -262,6 +283,7 @@ class Game:
                 self.display.blit(life_text, (10, 10))
                 self.display.blit(energy_text, (10, 30))
             
+                self.display.blit(pygame.image.load("assets/images/items/schal_der_leichtigkeit.png"), (100, 100))
                 self.screen.blit(pygame.transform.scale(self.display, self.screen.get_size()), (0, 0))
                 pygame.display.set_caption('Platformer')
                 pygame.display.update()
