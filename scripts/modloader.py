@@ -14,13 +14,21 @@ class ModLoader:
                 with open(path) as f:
                     code = f.read()
                 mod_globals = {
-                    'game': self.game,
-                    'register_hook': self.register_hook,
-                }
+    				'game': self.game,
+    				'register_hook': self.register_hook,
+    				'register_item': register_item,
+    				'ShopItem': ShopItem,
+    				'CollectableItem': CollectableItem,
+    				'OwnedItem': OwnedItem,
+    				'pygame': pygame
+				}
                 exec(code, mod_globals)
 
     def register_hook(self, hook_func):
         self.mods.append(hook_func)
+    
+    def register_item(item):
+	    game.items.add_item(item)
 
     def update(self):
         for hook in self.mods:
