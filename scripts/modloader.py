@@ -1,4 +1,5 @@
 import os
+import pygame
 
 class ModLoader:
     def __init__(self, game):
