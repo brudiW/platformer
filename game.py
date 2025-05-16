@@ -9,13 +9,16 @@ from scripts.entities import PhysicsEntity, Player
 from scripts.tilemap import Tilemap
 from scripts.gamesave import GameSave
 from scripts.item import Item, ShopItem, CollectableItem, OwnedItem, Items
+from scripts.modloader import Modloader
 
 class Game:
     def __init__(self):
         pygame.init()
         if pygame.joystick.get_count() > 0: # Controller, falls vorhanden
             self.joy = pygame.joystick.Joystick(0)
-
+            
+		self.mod_loader = ModLoader(self)
+		self.mod_loader.load_mods()
         # Programm Fenster erstellung
         pygame.display.set_caption('Platformer')
         self.screen = pygame.display.set_mode((640, 480))
