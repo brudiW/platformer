@@ -1,3 +1,5 @@
+import pygame
+
 jump_state = {
     'jump_count': 0,
     'max_jumps': 2,
