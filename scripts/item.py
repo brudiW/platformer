@@ -24,7 +24,7 @@ class ItemLoader:
         self.items.append(hook_func)
 
     def update(self):
-        for hook in self.mods:
+        for hook in self.items:
             hook()
 
 class Items:
