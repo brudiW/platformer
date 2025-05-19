@@ -27,6 +27,7 @@ def hook():
         jump_state['jump_pressed'] = True
     else:
         jump_state['jump_pressed'] = False
+
     
 
 register_hook(hook)
