@@ -5,7 +5,7 @@ import pygame
 import json
 
 from scripts.utils import load_image, load_images
-from scripts.entities import PhysicsEntity, Player
+from scripts.entities import PhysicsEntity, Player, Enemy
 from scripts.tilemap import Tilemap
 from scripts.gamesave import GameSave
 from scripts.item import Item, ShopItem, CollectableItem, OwnedItem, Items, ItemLoader
@@ -16,6 +16,14 @@ class Game:
         pygame.init()
         if pygame.joystick.get_count() > 0: # Controller, falls vorhanden
             self.joy = pygame.joystick.Joystick(0)
+            self.axlX = self.joy.get_axis(0) # laufen l = -1, r = 1
+            self.axlY = self.joy.get_axis(1)
+            self.axrX = self.joy.get_axis(2)
+            self.axrY = self.joy.get_axis(3)
+            self.leftBump = self.joy.get_axis(4)
+            self.rightBump = self.joy.get_axis(5)
+            self.btnA = self.joy.get_button(0) # springen
+            self.startBTN = self.joy.get_button(7) # pause
             
         #self.mod_loader = ModLoader(self)
         #self.mod_loader.load_mods()
@@ -39,10 +47,6 @@ class Game:
             "bottom": None,
             "left": None,
             "right": None,
-            "topleft": None,
-            "topright": None,
-            "bottomleft": None,
-            "bottomright": None,
             "armor": None,
             "accessory": None
         }
@@ -57,12 +61,14 @@ class Game:
         self.assets = { # Assets
             'grass': load_images('images/tiles/grass'),
             'coin': load_images('images/coin'),
-            'player': load_image('images/checkpoint/checkpoint.png'),
+            'player': load_image('images/entities/Player.png'),
             'background': load_image('images/background.png'),
             'decor': load_images('images/decor'),
             'checkpoint': load_image('images/checkpoint/checkpoint.png'),
             'mirror': load_image('images/mirror/mirror.png'),
             'stone': load_images('images/tiles/stone'),
+            'enemy-1': load_image('images/entities/enemy-1.png'),
+            'fireball': load_image('images/attacks/fireball.png')
         }
 
         self.worldlist = [
@@ -80,6 +86,7 @@ class Game:
 
 
         self.player = Player(self, (self.tilemap.playerSpawn()[0], self.tilemap.playerSpawn()[1]), (8, 15)) # Player Erstellen
+        self.enemyA = Enemy(self, "enemy-1", (200, 80), (16, 16), 'fireball')
 
         self.scroll = [0, 0] # Kameraposition initialisieren
         
@@ -116,10 +123,12 @@ class Game:
             if tile['type'] == 'coin':
                 coin_rect = pygame.Rect(tile['pos'][0], tile['pos'][1], self.tilemap.tile_size, self.tilemap.tile_size)
                 self.off_grid_coin_rects.append(coin_rect)
+        
+        self.inWorld_ItemSelect("middle")
 
     def inWorld_ItemSelect(self, itemslot):
-        pygame.draw.circle(self.display, (10, 10, 10), (self.display.get_width() / 2, self.display.get_height() / 2), 100, 50, True, True, True, True)
-        
+        self.selected_itemslot = itemslot  # Speichere Auswahl zur Anzeige später
+    
     def run(self):
         #Main Game Loop
         while True:
@@ -162,34 +171,23 @@ class Game:
                         if self.rightBump < 0 or self.energy <= 0:
                             self.run_speed = 0.5  # Setze die Geschwindigkeit zurück
 
-                        if self.axrX < -0.3:
-                            if self.axrY > 0.3:
-                                print("Unten links")
-                                self.inWorld_ItemSelect("bottomleft")
-                            elif self.axrY > -0.3 and self.axrY < 0.3:
+                        if self.axrX < -0.7:
+                            if self.axrY > -0.7 and self.axrY < 0.7:
                                 print("Links")
                                 self.inWorld_ItemSelect("left")
-                            elif self.axrY < -0.3:
-                                print("Oben links")
-                                self.inWorld_ItemSelect("topleft")
-                        elif self.axrX > 0.3:
-                            if self.axrY > 0.3:
-                                print("Unten rechts")
-                                self.inWorld_ItemSelect("bottomright")
-                            elif self.axrY > -0.3 and self.axrY < 0.3:
+                        elif self.axrX > 0.7:
+                            if self.axrY > -0.7 and self.axrY < 0.7:
                                 print("Rechts")
                                 self.inWorld_ItemSelect("right")
-                            elif self.axrY < -0.3:
-                                print("Oben rechts")
-                                self.inWorld_ItemSelect("topright")
-                        elif self.axrX > -0.3 and self.axlX < 0.3:
-                            if self.axrY > 0.3:
+                        elif self.axrX > -0.7 and self.axlX < 0.7:
+                            if self.axrY > 0.7:
                                 print("Unten")
                                 self.inWorld_ItemSelect("bottom")
-                            elif self.axrY < -0.3:
+                            elif self.axrY < -0.7:
                                 print("Oben")
                                 self.inWorld_ItemSelect("top")
-                            elif self.axrY > -0.3 and self.axrY < 0.3:
+                            elif self.axrY > -0.7 and self.axrY < 0.7:
+                                self.inWorld_ItemSelect("middle")
                                 pass
                         #print(f"Right Stick X: {self.axrX}, Right Stick Y: {self.axrY}")
 
@@ -254,6 +252,8 @@ class Game:
             
                 self.player.update(self.tilemap, (self.movement[1] - self.movement[0], 0))
                 self.player.render(self.display, offset=render_scroll)
+                self.enemyA.update(self.tilemap, (0, 0))
+                self.enemyA.render(self.display, offset=render_scroll)
             
             
                         
@@ -285,6 +285,10 @@ class Game:
                 energy_text = pygame.font.Font.render(pygame.font.Font(None, 24), f"Energy: {int(self.energy)}", True, (255, 255, 255))
                 self.display.blit(life_text, (10, 10))
                 self.display.blit(energy_text, (10, 30))
+                if hasattr(self, 'selected_itemslot') and not self.selected_itemslot == "middle":
+                    pygame.draw.circle(self.display, (255, 255, 0), (self.display.get_width() // 2, self.display.get_height() // 2), 40, 20)
+                self.enemyA.attack(self.player.pos, 'fireball')
+
             
                 self.display.blit(pygame.image.load("assets/images/items/schal_der_leichtigkeit.png"), (100, 100))
                 self.screen.blit(pygame.transform.scale(self.display, self.screen.get_size()), (0, 0))
