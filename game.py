@@ -11,6 +11,7 @@ from scripts.gamesave import GameSave
 from scripts.item import Item, ShopItem, CollectableItem, OwnedItem, Items, ItemLoader
 from scripts.modloader import ModLoader
 from scripts.mainmenu import MainMenu
+from scripts.button import Button
 
 class Game:
     def __init__(self):
