@@ -21559,6 +21559,30 @@
                 162,
                 4
             ]
+        },
+        "53;4": {
+            "type": "checkpoint",
+            "variant": 0,
+            "pos": [
+                53,
+                4
+            ]
+        },
+        "122;7": {
+            "type": "checkpoint",
+            "variant": 0,
+            "pos": [
+                122,
+                7
+            ]
+        },
+        "145;6": {
+            "type": "mirror",
+            "variant": 0,
+            "pos": [
+                145,
+                6
+            ]
         }
     },
     "tile_size": 16,
