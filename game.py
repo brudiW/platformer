@@ -36,6 +36,11 @@ class Game:
         pygame.display.set_caption('Platformer')
         self.screen = pygame.display.set_mode((640, 480))
         self.display = pygame.Surface((320, 240))
+        self.console_active = False
+        self.console_input = ''
+        self.console_output = []
+        self.consolefont = pygame.font.Font(None, 24)
+
 
         self.clock = pygame.time.Clock() # Game Clock
         
@@ -93,10 +98,10 @@ class Game:
 
 
         self.player = Player(self, (self.tilemap.playerSpawn()[0], self.tilemap.playerSpawn()[1]), (5, 13)) # Player Erstellen
-        self.enemyA = Enemy(self, "enemy-1", (200, 80), (16, 16), 'fireball', 3)
-        self.enemies.append(self.enemyA)
+        #self.enemyA = Enemy(self, "enemy-1", (200, 80), (16, 16), 'fireball', 3)
+        #self.enemies.append(self.enemyA)
         self.physicsentities.append(self.player)
-        self.physicsentities.append(self.enemyA)
+        #self.physicsentities.append(self.enemyA)
 
         self.scroll = [0, 0] # Kameraposition initialisieren
         
@@ -117,7 +122,7 @@ class Game:
         self.changePauseState = True
 
         # Main Menu Initialization
-        self.inMainMenu = False
+        self.inMainMenu = True
 
         self.energy = 100 # Energie, z.B. für Sprinten
 
@@ -141,6 +146,27 @@ class Game:
 
     def inWorld_ItemSelect(self, itemslot):
         self.selected_itemslot = itemslot  # Speichere Auswahl zur Anzeige später
+    def execute_command(self, command):
+        try:
+            if command.startswith("set_energy "):
+                value = int(command.split()[1])
+                self.energy = value
+                self.console_output.append(f"Energy set to {value}")
+            elif command.startswith("teleport ") or command.startswith("tp "):
+                x, y = map(int, command.split()[1:])
+                self.player.pos = [x, y]
+                self.console_output.append(f"Teleported to {x}, {y}")
+            elif command == "godmode":
+                self.health_points = 999
+                self.player_lives = 999
+                self.console_output.append("Godmode activated")
+            elif command == "help":
+                self.console_output.append("Commands: set_energy <val>, teleport <x> <y>, godmode, help")
+            else:
+                self.console_output.append("Unknown command.")
+        except Exception as e:
+            self.console_output.append(f"Error: {str(e)}")
+
     
     def run(self):
         #Main Game Loop
@@ -246,6 +272,20 @@ class Game:
                                     self.pause = False
                                 print(self.pause)
                                 self.changePauseState = False
+
+                        if event.key == pygame.K_TAB:
+                            self.console_active = not self.console_active  # Toggle console
+
+                        elif self.console_active:
+                            if event.key == pygame.K_BACKSPACE:
+                                self.console_input = self.console_input[:-1]
+                            elif event.key == pygame.K_RETURN:
+                                self.console_output.append("> " + self.console_input)
+                                self.execute_command(self.console_input)
+                                self.console_input = ''
+                            else:
+                                self.console_input += event.unicode
+
                     if event.type == pygame.KEYUP:
                         if event.key == pygame.K_LEFT:
                             self.movement[0] = False
@@ -274,8 +314,8 @@ class Game:
 
                     self.player.update(self.tilemap, (self.movement[1] - self.movement[0], 0))
                     self.player.render(self.display, offset=render_scroll)
-                    self.enemyA.update(self.tilemap, (0, 0))
-                    self.enemyA.render(self.display, offset=render_scroll)
+                    #self.enemyA.update(self.tilemap, (0, 0))
+                    #self.enemyA.render(self.display, offset=render_scroll)
 
 
 
@@ -310,12 +350,21 @@ class Game:
                     self.display.blit(energy_text, (10, 30))
                     if hasattr(self, 'selected_itemslot') and not self.selected_itemslot == "middle":
                         pygame.draw.circle(self.display, (255, 255, 0), (self.display.get_width() // 2, self.display.get_height() // 2), 40, 20)
-                    self.enemyA.attack(self.player.pos, 'fireball', offset=render_scroll)
+                    #self.enemyA.attack(self.player.pos, 'fireball', offset=render_scroll)
                     for entity in self.physicsentities:
                         entity.drawHitbox(self.display, offset=render_scroll)
 
 
                     self.display.blit(pygame.image.load("assets/images/items/schal_der_leichtigkeit.png"), (100, 100))
+                    if self.console_active:
+                        pygame.draw.rect(self.display, (0, 0, 0), (0, self.display.get_height() - 60, self.display.get_width(), 60))
+                        input_surface = self.consolefont.render(self.console_input, True, (0, 255, 0))
+                        self.display.blit(input_surface, (10, self.display.get_height() - 50))
+
+                        for i, line in enumerate(self.console_output[-2:]):  # Show last 2 lines
+                            output_surface = self.consolefont.render(line, True, (255, 255, 255))
+                            self.display.blit(output_surface, (10, self.display.get_height() - 70 - (20 * i)))
+
                     self.screen.blit(pygame.transform.scale(self.display, self.screen.get_size()), (0, 0))
                     pygame.display.set_caption('Platformer')
                     pygame.display.update()
