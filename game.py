@@ -41,6 +41,9 @@ class Game:
         
         self.items = Items(self) # Items Klasse laden
 
+        self.enemies = []
+        self.physicsentities = []
+
         self.menu = MainMenu(self)
 
         self.items.loadItems('hidden/items.json') # Items aus hidden/items.json (Liste aller Items) laden
@@ -89,8 +92,11 @@ class Game:
         print(self.gamesave.getCoins(self.SAVE_PATH)) # // DEBUG
 
 
-        self.player = Player(self, (self.tilemap.playerSpawn()[0], self.tilemap.playerSpawn()[1]), (8, 15)) # Player Erstellen
-        self.enemyA = Enemy(self, "enemy-1", (200, 80), (16, 16), 'fireball')
+        self.player = Player(self, (self.tilemap.playerSpawn()[0], self.tilemap.playerSpawn()[1]), (5, 13)) # Player Erstellen
+        self.enemyA = Enemy(self, "enemy-1", (200, 80), (16, 16), 'fireball', 3)
+        self.enemies.append(self.enemyA)
+        self.physicsentities.append(self.player)
+        self.physicsentities.append(self.enemyA)
 
         self.scroll = [0, 0] # Kameraposition initialisieren
         
@@ -111,7 +117,7 @@ class Game:
         self.changePauseState = True
 
         # Main Menu Initialization
-        self.inMainMenu = True
+        self.inMainMenu = False
 
         self.energy = 100 # Energie, z.B. für Sprinten
 
@@ -251,7 +257,11 @@ class Game:
                             self.changePauseState = True
                     if self.energy <= 0:
                         self.run_speed = 0.5
+                    
                 if not self.pause:
+                    for enemy in self.enemies:
+                        if self.player.rect().colliderect(enemy.rect()):
+                            self.health_points -= 5
                     for level in self.worldlist:
                         self.gamesave.checkUnlock(level, self.SAVE_PATH)
                     self.display.blit(self.assets['background'], (0, 0))
@@ -285,6 +295,7 @@ class Game:
                             sys.exit()
                     if self.health_points <= 0:
                         self.player_lives -= 1
+                        self.health_points = 6
                         if self.player_lives > 0:
                             self.player.pos[0], self.player.pos[1] = self.spawn_location[0], self.spawn_location[1] - 2
                         else:
@@ -299,7 +310,9 @@ class Game:
                     self.display.blit(energy_text, (10, 30))
                     if hasattr(self, 'selected_itemslot') and not self.selected_itemslot == "middle":
                         pygame.draw.circle(self.display, (255, 255, 0), (self.display.get_width() // 2, self.display.get_height() // 2), 40, 20)
-                    self.enemyA.attack(self.player.pos, 'fireball')
+                    self.enemyA.attack(self.player.pos, 'fireball', offset=render_scroll)
+                    for entity in self.physicsentities:
+                        entity.drawHitbox(self.display, offset=render_scroll)
 
 
                     self.display.blit(pygame.image.load("assets/images/items/schal_der_leichtigkeit.png"), (100, 100))
