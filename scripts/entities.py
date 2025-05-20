@@ -63,6 +63,8 @@ class PhysicsEntity:
 
     def renderAtt(self, attack, surf , offset=(0, 0)):
         surf.blit(pygame.transform.flip(self.game.assets[attack], self.flip, False), (self.pos[0] - offset[0], self.pos[1] - offset[1]))
+    def drawHitbox(self, surf, offset=(0,0)):
+        pygame.draw.rect(surf, (255, 0, 0), (self.pos[0] - offset[0], self.pos[1] - offset[1], self.size[0], self.size[1]), 1)
 
 class Player(PhysicsEntity):
     def __init__(self, game, pos, size):
@@ -78,10 +80,11 @@ class Player(PhysicsEntity):
 
 
 class Enemy(PhysicsEntity):
-    def __init__(self, game, e_type, pos, size, attack_type):
+    def __init__(self, game, e_type, pos, size, attack_type, health):
         super().__init__(game, e_type, pos, size)
         self.attack_type = attack_type
         self.airtime = 0
+        self.health = health
 
     
     def update(self, tilemap, movement=(0, 0)):
@@ -97,7 +100,7 @@ class Enemy(PhysicsEntity):
             self.game.display,
             (255, 0, 0),
             (self.pos[0]- offset[0], self.pos[1]- offset[1]),
-            (target[0]- offset[0], target[1]- offset[1]),
+            (target[0] - offset[0], target[1]- offset[1]),
             10
         )
     
