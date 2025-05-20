@@ -26,8 +26,8 @@ class Game:
             self.btnA = self.joy.get_button(0) # springen
             self.startBTN = self.joy.get_button(7) # pause
             
-        #self.mod_loader = ModLoader(self)
-        #self.mod_loader.load_mods()
+    	self.mod_loader = ModLoader(self)
+        self.mod_loader.load_mods()
         self.item_loader = ItemLoader(self)
         self.item_loader.load_itemCode()
         
@@ -53,7 +53,7 @@ class Game:
 
         self.items.loadItems('hidden/items.json') # Items aus hidden/items.json (Liste aller Items) laden
         self.items.list_items("owned")
-        #self.equpped_items = [] # Ausgerüstete Items
+        self.equpped_items = [] # Ausgerüstete Items
         self.item_slots = {
             "top": None,
             "bottom": None,
@@ -147,25 +147,40 @@ class Game:
     def inWorld_ItemSelect(self, itemslot):
         self.selected_itemslot = itemslot  # Speichere Auswahl zur Anzeige später
     def execute_command(self, command):
-        try:
-            if command.startswith("set_energy "):
-                value = int(command.split()[1])
-                self.energy = value
-                self.console_output.append(f"Energy set to {value}")
-            elif command.startswith("teleport ") or command.startswith("tp "):
-                x, y = map(int, command.split()[1:])
-                self.player.pos = [x, y]
-                self.console_output.append(f"Teleported to {x}, {y}")
-            elif command == "godmode":
-                self.health_points = 999
-                self.player_lives = 999
-                self.console_output.append("Godmode activated")
-            elif command == "help":
-                self.console_output.append("Commands: set_energy <val>, teleport <x> <y>, godmode, help")
-            else:
-                self.console_output.append("Unknown command.")
-        except Exception as e:
-            self.console_output.append(f"Error: {str(e)}")
+    	try:
+    		parts = command.strip().split()
+        	if not parts:
+            	return
+
+        	cmd = parts[0]
+        	args = parts[1:]
+
+        	if cmd == "set_energy" and len(args) == 1:
+            	value = int(args[0])
+            	self.energy = value
+            	self.console_output.append(f"Energy set to {value}")
+        	elif cmd == "teleport" and len(args) == 2:
+            	x, y = map(int, args)
+            	self.player.pos = [x, y]
+            	self.console_output.append(f"Teleported to {x}, {y}")
+        	elif cmd == "godmode":
+            	self.health_points = 999
+            	self.console_output.append("Godmode activated")
+        	elif cmd == "help":
+    			self.console_output.append("Commands: set_energy <val>, teleport <x> <y>, godmode, help")
+            	if hasattr(self.mod_loader, "commands"):
+                	self.console_output.append("Mod Commands: " + ", ".join(self.mod_loader.commands.keys()))
+        	elif hasattr(self.mod_loader, "commands") and cmd in self.mod_loader.commands:
+            	result = self.mod_loader.run_command(cmd, *args)
+            	if result is not None:
+                	self.console_output.append(str(result))
+            	else:
+                	self.console_output.append(f"Executed mod command: {cmd}")
+        	else:
+            	self.console_output.append("Unknown command.")
+    	except Exception as e:
+        	self.console_output.append(f"Error: {str(e)}")
+
 
     
     def run(self):
@@ -176,8 +191,8 @@ class Game:
                 pygame.display.set_caption("MAIN MENU")
                 pygame.display.update()
             elif not self.inMainMenu:
-                #self.mod_loader.update() # MODS // SPÄTER WIEDER EINBAUEN
-                self.item_loader.update()
+                self.mod_loader.update() # MODS // SPÄTER WIEDER EINBAUEN
+                self.item_loader.update() # ITEMS
                 # falls Controller vorhanden
                 if pygame.joystick.get_count() > 0:
                     self.axlX = self.joy.get_axis(0) # laufen l = -1, r = 1
