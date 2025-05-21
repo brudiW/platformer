@@ -1,5 +1,5 @@
 # platformer
-out platformer
+our platformer
 
 
 ## Controller Mapping (Tested with XBox Controller):
