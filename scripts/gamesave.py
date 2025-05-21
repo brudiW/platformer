@@ -49,20 +49,35 @@ class GameSave:
                 "durability": -1
             }
         }
+        print(f"[DEBUG] Speicherpfad beim Speichern: {path}")
+
         self.save(path)
 
     def load(self, path):
-        with open(path, 'r') as f:
-            map_data = json.load(f)
-        self.header = map_data['header']
-        self.levels = map_data['levels']
-        self.stats = map_data['stats']
-        self.items = map_data['items']
+        try:
+            with open(path, 'r') as f:
+                map_data = json.load(f)
+            self.header = map_data['header']
+            self.levels = map_data['levels']
+            self.stats = map_data['stats']
+            self.items = map_data['items']
+        except FileNotFoundError:
+            print(f"[WARNING] Speicherdatei nicht gefunden: {path}")
+        except json.JSONDecodeError:
+            print(f"[ERROR] Fehler beim Laden der JSON-Datei: {path}")
+
 
     def save(self, path):
+        assert isinstance(path, str) and path.strip() != "", f"[SAVE ERROR] Ungültiger Pfad: {path}"
         os.makedirs(os.path.dirname(path), exist_ok=True)
         with open(path, 'w') as f:
-            json.dump({'header': self.header, 'levels': self.levels, 'stats': self.stats, 'items': self.items}, f, indent=4)
+            json.dump({
+                'header': self.header,
+                'levels': self.levels,
+                'stats': self.stats,
+                'items': self.items
+            }, f, indent=4)
+
 
     def updateLevel(self, level, info, path):
         self.load(path)
