@@ -1,0 +1,58 @@
+import pygame
+class FireBoots(OwnedItem):
+    def __init__(self):
+        super().__init__(
+            name="Fire Boots",
+            description="Triples your speed while moving.",
+            effect="speed_x3",
+            texture=None,
+            rarety="epic",
+            durability=20,
+            game=game
+        )
+        self.texture = load_asset('fire_boots.png')
+
+    def equip(self, slot):
+        if super().equip(slot):
+            game.fire_boots_equipped = True
+            return True
+        return False
+
+    def use(self):
+        super().use()
+
+# Register the item
+register_item(FireBoots())
+
+# Mod tick hook: apply speed boost on key press
+def fire_boots_tick():
+    if not getattr(game, 'fire_boots_equipped', False):
+        return
+    
+    if pygame.joystick.get_count() > 0:
+        if not game.pause:
+            if game.axlX > 0.1:
+                game.movement[1] = True
+                game.movement[0] = False
+                game.run_speed = 3
+            if game.axlX < -0.1:
+                game.movement[0] = True
+                game.movement[1] = False
+                game.run_speed = 3
+            if -0.1 < game.axlX and game.axlX < 0.1:
+                game.movement[0], game.movement[1] = False, False
+                game.run_speed = 3
+    if not game.pause:
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_LEFT]:
+            game.movement[0] = True
+            game.run_speed = 3
+        elif keys[pygame.K_RIGHT]:
+            game.movement[1] = True
+            game.run_speed = 3
+        else:
+            game.movement[0] = False
+            game.movement[1] = False
+            game.run_speed = 3
+
+register_hook(fire_boots_tick)
