@@ -1,5 +1,6 @@
 import os
 import pygame
+from scripts.item import ShopItem, CollectableItem, OwnedItem
 
 class ModLoader:
     def __init__(self, game):
@@ -7,8 +8,8 @@ class ModLoader:
         self.mods = []
         self.commands = {}  # Store command name -> function
 
-    def load_mods(self):
-        mod_root = 'assets/mods'
+    def load_mods(self, path):
+        mod_root = path
         for mod_name in os.listdir(mod_root):
             mod_path = os.path.join(mod_root, mod_name)
             if os.path.isdir(mod_path):
