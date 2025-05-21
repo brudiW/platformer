@@ -17,7 +17,7 @@
         }
     },
     "stats": {
-        "coins": 0,
+        "coins": 1000,
         "artefacts": {
             "test": "test"
         },
