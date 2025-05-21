@@ -1,5 +1,7 @@
 import sys
 
+import os
+
 import pygame
 
 import json
@@ -26,11 +28,8 @@ class Game:
             self.rightBump = self.joy.get_axis(5)
             self.btnA = self.joy.get_button(0) # springen
             self.startBTN = self.joy.get_button(7) # pause
-            
-    	self.mod_loader = ModLoader(self)
-        self.mod_loader.load_mods()
-        self.item_loader = ItemLoader(self)
-        self.item_loader.load_itemCode()
+        
+        
         
 
         # Programm Fenster erstellung
@@ -46,6 +45,13 @@ class Game:
         self.clock = pygame.time.Clock() # Game Clock
         
         self.items = Items(self) # Items Klasse laden
+        
+        self.mod_loader = ModLoader(self)
+        self.mod_loader.load_mods('assets/mods') # Mods laden
+        print(self.mod_loader.mods) # // DEBUG
+        print(self.mod_loader.commands) # // DEBUG 
+        self.item_loader = ItemLoader(self)
+        self.item_loader.load_itemCode()
 
         self.enemies = []
         self.physicsentities = []
@@ -99,10 +105,10 @@ class Game:
 
 
         self.player = Player(self, (self.tilemap.playerSpawn()[0], self.tilemap.playerSpawn()[1]), (5, 13)) # Player Erstellen
-        #self.enemyA = Enemy(self, "enemy-1", (200, 80), (16, 16), 'fireball', 3)
-        #self.enemies.append(self.enemyA)
+        self.enemyA = Enemy(self, "enemy-1", (300, 60), (16, 16), 'fireball', 3)
+        self.enemies.append(self.enemyA)
         self.physicsentities.append(self.player)
-        #self.physicsentities.append(self.enemyA)
+        self.physicsentities.append(self.enemyA)
 
         self.scroll = [0, 0] # Kameraposition initialisieren
         
@@ -147,12 +153,13 @@ class Game:
 
     def inWorld_ItemSelect(self, itemslot):
         self.selected_itemslot = itemslot  # Speichere Auswahl zur Anzeige später
+        
     def execute_command(self, command):
         try:
             parts = command.strip().split()
             if not parts:
                 return
-                
+            
             cmd = parts[0]
             args = parts[1:]
             if cmd == "set_energy" and len(args) == 1:
@@ -165,7 +172,35 @@ class Game:
                 self.console_output.append(f"Teleported to {x}, {y}")
             elif cmd == "godmode":
                 self.health_points = 999
+                self.player_lives = 999
                 self.console_output.append("Godmode activated")
+            elif cmd == "list" and len(args) == 1:
+                sub = args[0]
+                if sub == 'enemy':
+                    for enemy in self.enemies:
+                        self.console_output.append(f"Enemy: {enemy.type} at {enemy.pos}")
+                elif sub == 'checkpoint':
+                    for checkpoint in self.checkpoints:
+                        self.console_output.append(f"Checkpoint: {checkpoint}")
+                elif sub == 'coin':
+                    for coin in self.coin_rects:
+                        self.console_output.append(f"Coin: {coin}")
+            
+            elif cmd == "coin" and len(args) == 2:
+                sub = args[0]
+                end = args[1]
+                if sub == 'give':
+                    self.gamesave.updateCoins(self.SAVE_PATH, int(self.gamesave.getCoins(self.SAVE_PATH) + int(end)))
+                    self.console_output.append(f"Added {end} coins")
+                elif sub == 'remove':
+                    self.gamesave.updateCoins(self.SAVE_PATH, int(self.gamesave.getCoins(self.SAVE_PATH) - int(end)))
+                    self.console_output.append(f"Removed {end} coins")
+                    
+            elif cmd == "coin" and len(args) == 1:
+                sub = args[0]
+                if sub == 'list':
+                    self.console_output.append(f"Coins: {self.gamesave.getCoins(self.SAVE_PATH)}")
+                
             elif cmd == "help":
                 self.console_output.append("Commands: set_energy <val>, teleport <x> <y>, godmode, help")
                 if hasattr(self.mod_loader, "commands"):
@@ -176,12 +211,18 @@ class Game:
                         self.console_output.append(str(result))
                     else:
                         self.console_output.append(f"Executed mod command: {cmd}")
+            elif cmd in self.mod_loader.commands:
+                result = self.mod_loader.run_command(cmd, *args)
+                if result is not None:
+                    self.console_output.append(str(result))
+                else:
+                    self.console_output.append(f"Executed mod command: {cmd}")
             else:
                 self.console_output.append("Unknown command.")
         except Exception as e:
-        	self.console_output.append(f"Error: {str(e)}")
-            
-            
+            self.console_output.append(f"Error: {str(e)}")
+
+
     
     def run(self):
         #Main Game Loop
@@ -191,6 +232,11 @@ class Game:
                 pygame.display.set_caption("MAIN MENU")
                 pygame.display.update()
             elif not self.inMainMenu:
+                if not self.pause:
+                    self.scroll[0] += (self.player.rect().centerx - self.display.get_width() / 2 - self.scroll[0]) / 30
+                    self.scroll[1] += (self.player.rect().centery - self.display.get_height() / 2 - self.scroll[1]) / 30
+                    render_scroll = (int(self.scroll[0]), int(self.scroll[1]))
+                    self.player.update(self.tilemap, (self.movement[1] - self.movement[0], 0))
                 self.mod_loader.update() # MODS // SPÄTER WIEDER EINBAUEN
                 self.item_loader.update() # ITEMS
                 # falls Controller vorhanden
@@ -314,23 +360,38 @@ class Game:
                         self.run_speed = 0.5
                     
                 if not self.pause:
-                    for enemy in self.enemies:
-                        if self.player.rect().colliderect(enemy.rect()):
-                            self.health_points -= 5
-                    for level in self.worldlist:
-                        self.gamesave.checkUnlock(level, self.SAVE_PATH)
+                    if os.path.exists(self.SAVE_PATH):
+                        for level in self.worldlist:
+                            self.gamesave.checkUnlock(level, self.SAVE_PATH)
+                    else:
+                        print(f"[WARNING] Speicherdatei nicht gefunden: {self.SAVE_PATH}")
+
                     self.display.blit(self.assets['background'], (0, 0))
 
                     self.scroll[0] += (self.player.rect().centerx - self.display.get_width() / 2 - self.scroll[0]) / 30
                     self.scroll[1] += (self.player.rect().centery - self.display.get_height() / 2 - self.scroll[1]) / 30
                     render_scroll = (int(self.scroll[0]), int(self.scroll[1]))
+                    self.player.update(self.tilemap, (self.movement[1] - self.movement[0], 0))
 
                     self.tilemap.render(self.display, offset=render_scroll)
 
-                    self.player.update(self.tilemap, (self.movement[1] - self.movement[0], 0))
+                    
                     self.player.render(self.display, offset=render_scroll)
-                    #self.enemyA.update(self.tilemap, (0, 0))
-                    #self.enemyA.render(self.display, offset=render_scroll)
+                    for enemy in self.enemies:
+                        enemy.update(self.tilemap, (0, 0))
+                        enemy.render(self.display, offset=render_scroll)
+                        if self.player.rect().colliderect(enemy.rect()):
+                            player_rect = self.player.rect()
+                            enemy_rect = enemy.rect()
+                            
+
+                            # Berechne die Kollision von jeder Seite
+                            if player_rect.bottom > enemy_rect.top and player_rect.top < enemy_rect.top:
+                                # Spieler trifft den Gegner von oben – kein Schaden
+                                self.enemies.remove(enemy)
+                            else:
+                                # Schaden nur bei Kollision von links, rechts oder unten
+                                self.health_points -= 5
 
 
 
