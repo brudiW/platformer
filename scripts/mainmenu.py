@@ -1,8 +1,9 @@
 import pygame
+import os
 import sys
 from scripts.button import Button
-
 pygame.init()
+
 
 
 class MainMenu:
