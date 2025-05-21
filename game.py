@@ -148,41 +148,40 @@ class Game:
     def inWorld_ItemSelect(self, itemslot):
         self.selected_itemslot = itemslot  # Speichere Auswahl zur Anzeige später
     def execute_command(self, command):
-    	try:
-    		parts = command.strip().split()
-        	if not parts:
-            	return
-
-        	cmd = parts[0]
-        	args = parts[1:]
-
-        	if cmd == "set_energy" and len(args) == 1:
-            	value = int(args[0])
-            	self.energy = value
-            	self.console_output.append(f"Energy set to {value}")
-        	elif cmd == "teleport" and len(args) == 2:
-            	x, y = map(int, args)
-            	self.player.pos = [x, y]
-            	self.console_output.append(f"Teleported to {x}, {y}")
-        	elif cmd == "godmode":
-            	self.health_points = 999
-            	self.console_output.append("Godmode activated")
-        	elif cmd == "help":
-    			self.console_output.append("Commands: set_energy <val>, teleport <x> <y>, godmode, help")
-            	if hasattr(self.mod_loader, "commands"):
-                	self.console_output.append("Mod Commands: " + ", ".join(self.mod_loader.commands.keys()))
-        	elif hasattr(self.mod_loader, "commands") and cmd in self.mod_loader.commands:
-            	result = self.mod_loader.run_command(cmd, *args)
-            	if result is not None:
-                	self.console_output.append(str(result))
-            	else:
-                	self.console_output.append(f"Executed mod command: {cmd}")
-        	else:
-            	self.console_output.append("Unknown command.")
-    	except Exception as e:
+        try:
+            parts = command.strip().split()
+            if not parts:
+                return
+                
+            cmd = parts[0]
+            args = parts[1:]
+            if cmd == "set_energy" and len(args) == 1:
+                value = int(args[0])
+                self.energy = value
+                self.console_output.append(f"Energy set to {value}")
+            elif cmd == "teleport" and len(args) == 2:
+                x, y = map(int, args)
+                self.player.pos = [x, y]
+                self.console_output.append(f"Teleported to {x}, {y}")
+            elif cmd == "godmode":
+                self.health_points = 999
+                self.console_output.append("Godmode activated")
+            elif cmd == "help":
+                self.console_output.append("Commands: set_energy <val>, teleport <x> <y>, godmode, help")
+                if hasattr(self.mod_loader, "commands"):
+                    self.console_output.append("Mod Commands: " + ", ".join(self.mod_loader.commands.keys()))
+                elif hasattr(self.mod_loader, "commands") and cmd in self.mod_loader.commands:
+                    result = self.mod_loader.run_command(cmd, *args)
+                    if result is not None:
+                        self.console_output.append(str(result))
+                    else:
+                        self.console_output.append(f"Executed mod command: {cmd}")
+            else:
+                self.console_output.append("Unknown command.")
+        except Exception as e:
         	self.console_output.append(f"Error: {str(e)}")
-
-
+            
+            
     
     def run(self):
         #Main Game Loop
