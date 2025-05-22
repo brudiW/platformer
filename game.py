@@ -166,7 +166,7 @@ class Game:
                 value = int(args[0])
                 self.energy = value
                 self.console_output.append(f"Energy set to {value}")
-            elif cmd == "teleport" and len(args) == 2:
+            elif (cmd == "teleport" or cmd == "teleport") and len(args) == 2:
                 x, y = map(int, args)
                 self.player.pos = [x, y]
                 self.console_output.append(f"Teleported to {x}, {y}")
