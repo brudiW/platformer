@@ -334,7 +334,7 @@ class Game:
                                 print(self.pause)
                                 self.changePauseState = False
 
-                        if event.key == pygame.K_TAB:
+                        if event.key == pygame.K_TAB and event.key == pygame.K_t and (event.key == K_KP_DIVIDE or event.key == K_SLASH):
                             self.console_active = not self.console_active  # Toggle console
 
                         elif self.console_active:
