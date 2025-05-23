@@ -60,6 +60,11 @@ class Tilemap:
     def playerSpawn(self):
         self.spawn = self.header['worldSpawn']
         return self.spawn[0], self.spawn[1]
+        
+    def getBackground(self):
+        self.backgrund = self.header['background']
+        return self.backgrund
+
 
     def render(self, surf, offset=(0, 0)):
         for coin in self.game.coin_rects:  # Copy for safe removal
