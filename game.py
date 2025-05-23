@@ -14,6 +14,7 @@ from scripts.item import Item, ShopItem, CollectableItem, OwnedItem, Items, Item
 from scripts.modloader import ModLoader
 from scripts.mainmenu import MainMenu
 from scripts.button import Button
+from scripts.levelselect import LevelSelect
 
 class Game:
     def __init__(self):
@@ -78,6 +79,7 @@ class Game:
         self.movement = [False, False] # links rechts bewegen
 
         self.tilemap = Tilemap(self, tile_size=16) # Map Laden
+        self.tilemap.load('assets/maps/1-1.json')
         
         self.assets = { # Assets
             'grass': load_images('images/tiles/grass'),
@@ -96,7 +98,7 @@ class Game:
             "1-1", "1-2"
         ]
         
-        self.tilemap.load('assets/maps/1-1.json')
+        
 
         # Spielstand laden
         self.gamesave = GameSave()
@@ -149,6 +151,8 @@ class Game:
             if tile['type'] == 'coin':
                 coin_rect = pygame.Rect(tile['pos'][0], tile['pos'][1], self.tilemap.tile_size, self.tilemap.tile_size)
                 self.off_grid_coin_rects.append(coin_rect)
+
+        self.ls = LevelSelect(self, self.display)
         
         self.inWorld_ItemSelect("middle")
 
@@ -227,7 +231,14 @@ class Game:
     
     def run(self):
         #Main Game Loop
+        a = False
         while True:
+            self.ls.run()
+            self.screen.blit(pygame.transform.scale(self.ls.display, self.screen.get_size()), (0, 0))
+            pygame.display.set_caption('Platformer')
+            pygame.display.update()
+            self.clock.tick(60)
+        while a == True:
             if self.inMainMenu:
                 self.menu.showMainMenu()
                 pygame.display.set_caption("MAIN MENU")
