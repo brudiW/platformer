@@ -76,12 +76,14 @@ class Game:
             print(f"{itemslot}")
         
         self.movement = [False, False] # links rechts bewegen
+
+        self.tilemap = Tilemap(self, tile_size=16) # Map Laden
         
         self.assets = { # Assets
             'grass': load_images('images/tiles/grass'),
             'coin': load_images('images/coin'),
             'player': load_image('images/entities/Player.png'),
-            'background': load_image('images/background.png'),
+            'background': load_image(f"images/{self.tilemap.getBackground()}.png"),
             'decor': load_images('images/decor'),
             'checkpoint': load_image('images/checkpoint/checkpoint.png'),
             'mirror': load_image('images/mirror/mirror.png'),
@@ -94,7 +96,6 @@ class Game:
             "1-1", "1-2"
         ]
         
-        self.tilemap = Tilemap(self, tile_size=16) # Map Laden
         self.tilemap.load('assets/maps/1-1.json')
 
         # Spielstand laden
@@ -334,7 +335,7 @@ class Game:
                                 print(self.pause)
                                 self.changePauseState = False
 
-                        if event.key == pygame.K_TAB and event.key == pygame.K_t and (event.key == K_KP_DIVIDE or event.key == K_SLASH):
+                        if event.key == pygame.K_TAB: #s and event.key == pygame.K_t and (event.key == pygame.K_KP_DIVIDE or event.key == pygame.K_SLASH):
                             self.console_active = not self.console_active  # Toggle console
 
                         elif self.console_active:
