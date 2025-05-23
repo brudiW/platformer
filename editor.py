@@ -18,6 +18,7 @@ class Editor:
         self.clock = pygame.time.Clock()
         
         self.assets = {
+            'stone': load_images('images/tiles/stone'),
             'grass': load_images('images/tiles/grass'),
             'coin': load_images('images/coin'),
             'decor': load_images('images/decor'),
