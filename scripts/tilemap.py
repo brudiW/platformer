@@ -62,8 +62,8 @@ class Tilemap:
         return self.spawn[0], self.spawn[1]
         
     def getBackground(self):
-        self.backgrund = self.header['background']
-        return self.backgrund
+        self.background = self.header['background']
+        return self.background
 
 
     def render(self, surf, offset=(0, 0)):
