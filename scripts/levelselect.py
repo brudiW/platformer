@@ -35,6 +35,17 @@ class LevelSelect:
             'world-1': load_images('images/tiles/world-1')
         }
         self.flip = False
+        self.buttonAs = []
+        self.buttonBs = []
+        
+        for tile in self.overworld.layer1.values():
+            if tile['type'] == 'button1':
+                button_rect = pygame.rect(tile['pos'][0]*16,tile['pos'][1]*16, 16, 16)
+                self.buttonAs.append(button_rect)
+            if tile['type'] == 'button2':
+                button_rect = pygame.rect(tile['pos'][0]*16,tile['pos'][1]*16, 16, 16)
+                self.buttonBs.append(button_rect)
+
 
     def getPos(self):
         return self.pos[0], self.pos[1]
@@ -104,6 +115,7 @@ class Overworld:
         self.layer1 = {}
         self.layer2 = {}
         self.layer3 = {}
+
 
     def save(self, path):
         f = open(path, 'w')
@@ -183,6 +195,12 @@ class Overworld:
                                 display.blit(asset[0], (tile['pos'][0] * self.tile_size - offset[0], tile['pos'][1] * self.tile_size - offset[1]))
                         else:
                             display.blit(asset, (tile['pos'][0] * self.tile_size - offset[0], tile['pos'][1] * self.tile_size - offset[1]))
+        for button in self.levelselect.buttonAs:
+            if self.levelselect.figur.colliderect(button):
+                print("RED BUTTON PRESSED")
+        for button in self.levelselect.buttonBs:
+            if self.levelselect.figur.colliderect(button):
+                print("GREEN BUTTON PRESSED")
 
 class OverworldEditor:
     def __init__(self):
