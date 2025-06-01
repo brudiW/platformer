@@ -32,7 +32,9 @@ class LevelSelect:
             'decor': load_images('images/decor'),
             'checkpoint': load_images('images/checkpoint'),
             'mirror': load_images('images/mirror'),
-            'world-1': load_images('images/tiles/world-1')
+            'world-1': load_images('images/tiles/world 1'),
+            'button1': load_image('images/tiles/world 1/button1.png'),
+            'button2': load_image('images/tiles/world 1/button2.png')
         }
         self.flip = False
         self.buttonAs = []
@@ -40,10 +42,10 @@ class LevelSelect:
         
         for tile in self.overworld.layer1.values():
             if tile['type'] == 'button1':
-                button_rect = pygame.rect(tile['pos'][0]*16,tile['pos'][1]*16, 16, 16)
+                button_rect = pygame.Rect(tile['pos'][0]*16,tile['pos'][1]*16, 16, 16)
                 self.buttonAs.append(button_rect)
             if tile['type'] == 'button2':
-                button_rect = pygame.rect(tile['pos'][0]*16,tile['pos'][1]*16, 16, 16)
+                button_rect = pygame.Rect(tile['pos'][0]*16,tile['pos'][1]*16, 16, 16)
                 self.buttonBs.append(button_rect)
 
 
@@ -195,12 +197,13 @@ class Overworld:
                                 display.blit(asset[0], (tile['pos'][0] * self.tile_size - offset[0], tile['pos'][1] * self.tile_size - offset[1]))
                         else:
                             display.blit(asset, (tile['pos'][0] * self.tile_size - offset[0], tile['pos'][1] * self.tile_size - offset[1]))
-        for button in self.levelselect.buttonAs:
-            if self.levelselect.figur.colliderect(button):
+        for button in self.game.ls.buttonAs:
+            if self.game.ls.figur.colliderect(button):
                 print("RED BUTTON PRESSED")
-        for button in self.levelselect.buttonBs:
-            if self.levelselect.figur.colliderect(button):
+        for button in self.game.ls.buttonBs:
+            if self.game.ls.figur.colliderect(button):
                 print("GREEN BUTTON PRESSED")
+                self.game.mainstate = "game"
 
 class OverworldEditor:
     def __init__(self):
@@ -219,7 +222,9 @@ class OverworldEditor:
             'decor': load_images('images/decor'),
             'checkpoint': load_images('images/checkpoint'),
             'mirror': load_images('images/mirror'),
-            'world-1': load_images('images/tiles/world-1')
+            'world-1': load_images('images/tiles/world 1'),
+            'button1': load_image('images/tiles/world 1/button1.png'),
+            'button2': load_image('images/tiles/world 1/button2.png')
         }
         
         self.movement = [False, False, False, False]
