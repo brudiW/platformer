@@ -43,7 +43,7 @@ class MainMenu:
       #draw pause screen buttons
       if self.start_button.draw(self.game.screen):
         self.game_menu = False
-        self.game.inMainMenu = False
+        self.game.mainstate = "select"
         pygame.time.wait(150)  # Add a 200ms delay
       if self.options_button.draw(self.game.screen):
         self.menu_state = "options"

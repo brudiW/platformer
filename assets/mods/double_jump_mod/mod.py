@@ -1,3 +1,4 @@
+#@SchimmelkellerCoding
 import pygame
 
 jump_state = {
@@ -23,4 +24,9 @@ def hook():
     else:
         jump_state['jump_pressed'] = False
 
+register_mod(
+    mod_name="Double Jump Mod",
+    mod_description="Allows the player to jump twice in the air.",
+    mod_author="SchimmelkellerCoding"
+)
 register_hook(hook)

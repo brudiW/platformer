@@ -1,3 +1,4 @@
+#@SchimmelkellerCoding
 import pygame
 class FireBoots(OwnedItem):
     def __init__(self):
@@ -54,5 +55,9 @@ def fire_boots_tick():
             game.movement[0] = False
             game.movement[1] = False
             game.run_speed = 3
-
+register_mod(
+    mod_name="Fire Boots Mod",
+    mod_description="Triples your speed while moving.",
+    mod_author="SchimmelkellerCoding"
+)
 register_hook(fire_boots_tick)

@@ -1,3 +1,4 @@
+#@SchimmelkellerCoding
 import pygame
 
 flying_enabled = False
@@ -26,6 +27,10 @@ def hook():
             game.player.pos[0] -= speed
         if keys[pygame.K_RIGHT]:
             game.player.pos[0] += speed
-
+register_mod(
+    mod_name="Fly Mod",
+    mod_description="Allows the player to fly freely in the game world.",
+    mod_author="SchimmelkellerCoding"
+)
 register_command("fly", toggle_fly)
 register_hook(hook)

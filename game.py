@@ -1,10 +1,16 @@
+#Author: @SchimmelkellerCoding
+#brudiW, Undertale  
+
 import sys
 
 import os
 
 import pygame
+from pygame._sdl2 import Window, Texture, Renderer
 
 import json
+
+import datetime
 
 from scripts.utils import load_image, load_images
 from scripts.entities import PhysicsEntity, Player, Enemy
@@ -161,6 +167,9 @@ class Game:
         self.restart_button = Button(132, 175, self.restart_img, 1)
 
         self.ls = LevelSelect(self, self.display)
+        self.debugScreen = pygame.Surface((320, 240)) # Debug Screen
+        self.debugState = False
+
         
         self.inWorld_ItemSelect("middle")
 
@@ -213,6 +222,23 @@ class Game:
                 sub = args[0]
                 if sub == 'list':
                     self.console_output.append(f"Coins: {self.gamesave.getCoins(self.SAVE_PATH)}")
+            elif cmd == "debug":
+                if not self.debugState:
+                    
+                    self.setup_debug_window()  # Debug Window Setup
+                else:
+                    self.debug_window.destroy()
+                self.debugState = not self.debugState
+                
+
+            elif cmd == "mods":
+                for mod in self.mod_loader.get_mod_list():
+                    self.console_output.append(f"Mod: {mod['name']} by {mod['author']} - {mod['description']}")
+
+            elif cmd == "stop" or cmd == "crash":
+                self.save_console_logs()  # Speichert Logs vor Beenden
+                pygame.quit()
+                sys.exit()
                 
             elif cmd == "help":
                 self.console_output.append("Commands: set_energy <val>, teleport <x> <y>, godmode, help")
@@ -254,11 +280,63 @@ class Game:
         self.physicsentities.append(self.player)
         self.physicsentities.append(self.enemyA)
 
+    def setup_debug_window(self):
+        self.debug_window = Window("Debug Info", size=(400, 300), position=(50, 50))
+        self.debug_renderer = Renderer(self.debug_window)
+
+
+    def debug(self):
+        # Debug-Surface leeren (schwarz füllen)
+        self.debugScreen.fill((0, 0, 0))
+
+        font = pygame.font.Font(None, 18)
+
+        # Debug-Infos in Zeilen speichern
+        lines = [
+            f"Player Pos: {self.player.pos}",
+            f"Lives: {self.player_lives}",
+            f"Health: {self.health_points}",
+            f"Energy: {int(self.energy)}",
+            f"FPS: {int(self.clock.get_fps())}",
+            f"Mouse Pos: {pygame.mouse.get_pos()}",
+            f"Selected Slot: {getattr(self, 'selected_itemslot', 'None')}"
+        ]
+
+        # Zeilen rendern & auf Surface blitten
+        for i, line in enumerate(lines):
+            text_surface = font.render(line, True, (255, 255, 255))
+            self.debugScreen.blit(text_surface, (10, 10 + i * 20))
+
+        # Surface zu Texture & anzeigen
+        debug_texture = pygame._sdl2.Texture.from_surface(self.debug_renderer, self.debugScreen)
+        self.debug_renderer.clear()
+        debug_texture.draw()
+        self.debug_renderer.present()
+
+    
+    def save_console_logs(self):
+        # Inhalt aus console_output in String zusammenfügen
+        log_text = "\n".join(self.console_output)
+
+        # 1. Datei: latest.log (überschreiben)
+        with open("hidden/latest.log", "w", encoding="utf-8") as f:
+            f.write(log_text)
+
+        # 2. Datei: Datum + Uhrzeit als Dateiname
+        now = datetime.datetime.now()
+        filename = now.strftime("hidden/log_%Y-%m-%d_%H-%M-%S.log")
+        with open(filename, "w", encoding="utf-8") as f:
+            f.write(log_text)
+
+        print(f"[INFO] Logs gespeichert: latest.log und {filename}")
+
+
+
     
     def run(self):
         #Main Game Loop
-        self.mainstate = "start"
-        while True:
+        self.mainstate = "game"
+        while True: 
             if self.mainstate == "select":
                 self.ls.run()
                 self.screen.blit(pygame.transform.scale(self.ls.display, self.screen.get_size()), (0, 0))
@@ -289,8 +367,10 @@ class Game:
                         self.startBTN = self.joy.get_button(7) # pause
                     for event in pygame.event.get():
                         if event.type == pygame.QUIT:
+                            self.save_console_logs()
                             pygame.quit()
                             sys.exit()
+
 
                         # Controller
                         if pygame.joystick.get_count() > 0:
@@ -445,8 +525,10 @@ class Game:
                             else:
                                 t = pygame.time.get_ticks()
                                 print(t/1000)
+                                self.save_console_logs()  # Speichert Logs vor Beenden
                                 pygame.quit()
                                 sys.exit()
+
                         if self.health_points <= 0:
                             self.player_lives -= 1
                             self.health_points = 6
@@ -455,13 +537,16 @@ class Game:
                             else:
                                 t = pygame.time.get_ticks()
                                 print(t/1000)
+                                self.save_console_logs()  # Speichert Logs vor Beenden
                                 pygame.quit()
                                 sys.exit()
 
                         life_text = pygame.font.Font.render(pygame.font.Font(None, 24), f"Lives: {self.player_lives}", True, (255, 255, 255))
                         energy_text = pygame.font.Font.render(pygame.font.Font(None, 24), f"Energy: {int(self.energy)}", True, (255, 255, 255))
+                        mousetext = pygame.font.Font.render(pygame.font.Font(None, 12), f"Mouse Position: {pygame.mouse.get_pos()}, Mouse Buttons: {pygame.mouse.get_pressed(5)}", True, (255, 255, 255))
                         self.display.blit(life_text, (10, 10))
                         self.display.blit(energy_text, (10, 30))
+                        self.display.blit(mousetext, (10, 50))
                         if hasattr(self, 'selected_itemslot') and not self.selected_itemslot == "middle":
                             pygame.draw.circle(self.display, (255, 255, 0), (self.display.get_width() // 2, self.display.get_height() // 2), 40, 20)
                         #self.enemyA.attack(self.player.pos, 'fireball', offset=render_scroll)
@@ -484,10 +569,28 @@ class Game:
                         pygame.display.update()
                         self.clock.tick(60)
                 if self.pause: # PAUSE MENU
+                    pygame.display.set_caption('Platformer (Paused)')
+                    font = pygame.font.Font(None, 36)
+                    text = pygame.font.Font.render(font, "Paused", True, (255, 255, 255))
+                    continue_text = pygame.font.Font.render(pygame.font.Font(None, 24), "CONTINUE", True, (255, 255, 255))
+                    restart_text = pygame.font.Font.render(pygame.font.Font(None, 24), "RESTART", True, (255, 255, 255))
+                    main_menu_text = pygame.font.Font.render(pygame.font.Font(None, 24), "MAIN MENU", True, (255, 255, 255))
+                    self.display.blit(text, (self.display.get_width() / 2 - text.get_width() / 2, self.display.get_height() / 2 - self.display.get_height() / 4 - text.get_height() / 2))
+                    pygame.draw.rect(self.display, (190, 0, 0), (self.display.get_width() / 2 - text.get_width() / 2 - 10, self.display.get_height() / 2 - self.display.get_height() / 8 - text.get_height() / 2, text.get_width() + 20, text.get_height() - 3))
+                    pygame.draw.rect(self.display, (0, 190, 0), (self.display.get_width() / 2 - text.get_width() / 2 - 10, self.display.get_height() / 2 - self.display.get_height() / 4 + text.get_height() + continue_text.get_height() - 1.5, text.get_width() + 20, text.get_height() -3))
+                    pygame.draw.rect(self.display, (0, 0, 190), (self.display.get_width() / 2 - text.get_width() / 2 - 10, self.display.get_height() / 2 - 13 - text.get_height() + continue_text.get_height() + restart_text.get_height(), text.get_width() + 20, text.get_height() - 3))
+                    self.display.blit(continue_text, (self.display.get_width() / 2 - continue_text.get_width() / 2, self.display.get_height() / 2 - self.display.get_height() / 8 - text.get_height() / 2 + 2))
+                    self.display.blit(restart_text, (self.display.get_width() / 2 - restart_text.get_width() / 2, self.display.get_height() / 2 - self.display.get_height() / 4 + text.get_height() + continue_text.get_height()))
+                    self.display.blit(main_menu_text, (self.display.get_width() / 2 - main_menu_text.get_width() / 2, self.display.get_height() / 2 - self.display.get_height() / 4 + text.get_height() + continue_text.get_height() + restart_text.get_height()))
+                    self.screen.blit(pygame.transform.scale(self.display, self.screen.get_size()), (0, 0))
+                    RECTA = pygame.Rect(self.display.get_width() / 2 - text.get_width() / 2 - 10, self.display.get_height() / 2 - self.display.get_height() / 8 - text.get_height() / 2, text.get_width() + 20, text.get_height() - 3)
+                    RECTB = pygame.Rect(self.display.get_width() / 2 - text.get_width() / 2 - 10, self.display.get_height() / 2 - self.display.get_height() / 4 + text.get_height() + continue_text.get_height() - 1.5, text.get_width() + 20, text.get_height() -3)
+                    RECTC = pygame.Rect(self.display.get_width() / 2 - text.get_width() / 2 - 10, self.display.get_height() / 2 - 13 - text.get_height() + continue_text.get_height() + restart_text.get_height(), text.get_width() + 20, text.get_height() - 3)
                     for event in pygame.event.get():
                         if event.type == pygame.QUIT:
+                            self.save_console_logs()  # Speichert Logs vor Beenden
                             pygame.quit()
-                            sys.exit()
+                            sys.exit()  
                         if event.type == pygame.KEYDOWN:
                             if event.key == pygame.K_ESCAPE and not self.pause:
                                 if self.changePauseState:
@@ -502,21 +605,25 @@ class Game:
                         if event.type == pygame.KEYUP:
                             if event.key == pygame.K_ESCAPE:
                                 self.changePauseState = True
-                    pygame.display.set_caption('Platformer (Paused)')
-                    font = pygame.font.Font(None, 36)
-                    text = pygame.font.Font.render(font, "Paused", True, (255, 255, 255))
-                    continue_text = pygame.font.Font.render(pygame.font.Font(None, 24), "CONTINUE", True, (255, 255, 255))
-                    restart_text = pygame.font.Font.render(pygame.font.Font(None, 24), "RESTART", True, (255, 255, 255))
-                    main_menu_text = pygame.font.Font.render(pygame.font.Font(None, 24), "MAIN MENU", True, (255, 255, 255))
-                    self.display.blit(text, (self.display.get_width() / 2 - text.get_width() / 2, self.display.get_height() / 2 - self.display.get_height() / 4 - text.get_height() / 2))
-                    pygame.draw.rect(self.display, (0, 190, 0), (self.display.get_width() / 2 - text.get_width() / 2 - 10, self.display.get_height() / 2 - self.display.get_height() / 8 - text.get_height() / 2, text.get_width() + 20, text.get_height() - 3))
-                    pygame.draw.rect(self.display, (0, 190, 0), (self.display.get_width() / 2 - text.get_width() / 2 - 10, self.display.get_height() / 2 - self.display.get_height() / 4 + text.get_height() + continue_text.get_height() - 1.5, text.get_width() + 20, text.get_height() -3))
-                    pygame.draw.rect(self.display, (0, 190, 0), (self.display.get_width() / 2 - text.get_width() / 2 - 10, self.display.get_height() / 2 - self.display.get_height() / 8 - text.get_height() + continue_text.get_height() + restart_text.get_height(), text.get_width() + 20, text.get_height() - 3))
-                    self.display.blit(continue_text, (self.display.get_width() / 2 - continue_text.get_width() / 2, self.display.get_height() / 2 - self.display.get_height() / 8 - text.get_height() / 2 + 2))
-                    self.display.blit(restart_text, (self.display.get_width() / 2 - restart_text.get_width() / 2, self.display.get_height() / 2 - self.display.get_height() / 4 + text.get_height() + continue_text.get_height()))
-                    self.display.blit(main_menu_text, (self.display.get_width() / 2 - main_menu_text.get_width() / 2, self.display.get_height() / 2 - self.display.get_height() / 4 + text.get_height() + continue_text.get_height() + restart_text.get_height()))
-                    self.screen.blit(pygame.transform.scale(self.display, self.screen.get_size()), (0, 0))
+                    if pygame.mouse.get_pressed(3):  # Linke Maustaste
+                        if RECTA.collidepoint(pygame.mouse.get_pos()):
+                            self.pause = False
+                            self.changePauseState = True
+                        if RECTB.collidepoint(pygame.mouse.get_pos()):
+                            self.reset()
+                            self.pause = False
+                            self.changePauseState = True
+                        if RECTC.collidepoint(pygame.mouse.get_pos()):
+                            self.reset()
+                            self.mainstate = "start"
+                            self.pause = False
+                            self.changePauseState = True
+                            self.inMainMenu = True
+                    
                     pygame.display.update()
                     self.clock.tick(60)
+            if self.debugState:
+                # Zeichne Debug-Infos auf debugScreen (Surface)
+                self.debug()
 
 Game().run()
