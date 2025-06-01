@@ -85,7 +85,7 @@ class Game:
             'grass': load_images('images/tiles/grass'),
             'coin': load_images('images/coin'),
             'player': load_image('images/entities/Player.png'),
-            'background': load_image(f"images/{self.tilemap.getBackground()}.png"),
+            'background': load_image(f"images/background.png"),
             'decor': load_images('images/decor'),
             'checkpoint': load_image('images/checkpoint/checkpoint.png'),
             'mirror': load_image('images/mirror/mirror.png'),
@@ -132,7 +132,7 @@ class Game:
         self.changePauseState = True
 
         # Main Menu Initialization
-        self.inMainMenu = True
+        self.inMainMenu = False
 
         self.energy = 100 # Energie, z.B. für Sprinten
 
@@ -151,6 +151,14 @@ class Game:
             if tile['type'] == 'coin':
                 coin_rect = pygame.Rect(tile['pos'][0], tile['pos'][1], self.tilemap.tile_size, self.tilemap.tile_size)
                 self.off_grid_coin_rects.append(coin_rect)
+
+        self.resume_img = pygame.image.load("assets/images/button/button_resume.png").convert_alpha()
+        self.restart_img = pygame.image.load('assets/images/button/button_back.png').convert_alpha()
+        self.mainMenu_img = pygame.image.load("assets/images/button/button_quit.png").convert_alpha()
+
+        self.resume_button = Button(104, 75, self.resume_img, 1)
+        self.mainMenu_button = Button(136, 125, self.mainMenu_img, 1)
+        self.restart_button = Button(132, 175, self.restart_img, 1)
 
         self.ls = LevelSelect(self, self.display)
         
@@ -171,7 +179,7 @@ class Game:
                 value = int(args[0])
                 self.energy = value
                 self.console_output.append(f"Energy set to {value}")
-            elif (cmd == "teleport" or cmd == "teleport") and len(args) == 2:
+            elif (cmd == "teleport" or cmd == "tp") and len(args) == 2:
                 x, y = map(int, args)
                 self.player.pos = [x, y]
                 self.console_output.append(f"Teleported to {x}, {y}")
@@ -227,237 +235,273 @@ class Game:
         except Exception as e:
             self.console_output.append(f"Error: {str(e)}")
 
+    def reset(self):
+        # Reset game state
+        self.player = Player(self, (self.tilemap.playerSpawn()[0], self.tilemap.playerSpawn()[1]), (5, 13))
+        self.enemies.clear()
+        self.physicsentities.clear()
+        self.scroll = [0, 0]
+        self.jumps_left = 1
+        self.run_speed = 0.5
+        self.player_lives = 3
+        self.health_points = 6
+        self.energy = 100
+        self.spawn_location = (self.tilemap.playerSpawn())
+        
+        # Reinitialize enemies and physics entities
+        self.enemyA = Enemy(self, "enemy-1", (300, 60), (16, 16), 'fireball', 3)
+        self.enemies.append(self.enemyA)
+        self.physicsentities.append(self.player)
+        self.physicsentities.append(self.enemyA)
 
     
     def run(self):
         #Main Game Loop
-        a = False
+        self.mainstate = "start"
         while True:
-            self.ls.run()
-            self.screen.blit(pygame.transform.scale(self.ls.display, self.screen.get_size()), (0, 0))
-            pygame.display.set_caption('Platformer')
-            pygame.display.update()
-            self.clock.tick(60)
-        while a == True:
-            if self.inMainMenu:
+            if self.mainstate == "select":
+                self.ls.run()
+                self.screen.blit(pygame.transform.scale(self.ls.display, self.screen.get_size()), (0, 0))
+                pygame.display.set_caption('Platformer')
+                pygame.display.update()
+                self.clock.tick(60)
+            if self.mainstate == "start":
                 self.menu.showMainMenu()
                 pygame.display.set_caption("MAIN MENU")
                 pygame.display.update()
-            elif not self.inMainMenu:
+            if self.mainstate == "game":
                 if not self.pause:
                     self.scroll[0] += (self.player.rect().centerx - self.display.get_width() / 2 - self.scroll[0]) / 30
                     self.scroll[1] += (self.player.rect().centery - self.display.get_height() / 2 - self.scroll[1]) / 30
                     render_scroll = (int(self.scroll[0]), int(self.scroll[1]))
                     self.player.update(self.tilemap, (self.movement[1] - self.movement[0], 0))
-                self.mod_loader.update() # MODS // SPÄTER WIEDER EINBAUEN
-                self.item_loader.update() # ITEMS
-                # falls Controller vorhanden
-                if pygame.joystick.get_count() > 0:
-                    self.axlX = self.joy.get_axis(0) # laufen l = -1, r = 1
-                    self.axlY = self.joy.get_axis(1)
-                    self.axrX = self.joy.get_axis(2)
-                    self.axrY = self.joy.get_axis(3)
-                    self.leftBump = self.joy.get_axis(4)
-                    self.rightBump = self.joy.get_axis(5)
-                    self.btnA = self.joy.get_button(0) # springen
-                    self.startBTN = self.joy.get_button(7) # pause
-                for event in pygame.event.get():
-                    if event.type == pygame.QUIT:
-                        pygame.quit()
-                        sys.exit()
-
-                    # Controller
+                    self.mod_loader.update() # MODS // SPÄTER WIEDER EINBAUEN
+                    self.item_loader.update() # ITEMS
+                    # falls Controller vorhanden
                     if pygame.joystick.get_count() > 0:
-                        if not self.pause:
-                            if self.axlX > 0.1:
-                                self.movement[1] = True
+                        self.axlX = self.joy.get_axis(0) # laufen l = -1, r = 1
+                        self.axlY = self.joy.get_axis(1)
+                        self.axrX = self.joy.get_axis(2)
+                        self.axrY = self.joy.get_axis(3)
+                        self.leftBump = self.joy.get_axis(4)
+                        self.rightBump = self.joy.get_axis(5)
+                        self.btnA = self.joy.get_button(0) # springen
+                        self.startBTN = self.joy.get_button(7) # pause
+                    for event in pygame.event.get():
+                        if event.type == pygame.QUIT:
+                            pygame.quit()
+                            sys.exit()
+
+                        # Controller
+                        if pygame.joystick.get_count() > 0:
+                            if not self.pause:
+                                if self.axlX > 0.1:
+                                    self.movement[1] = True
+                                    self.movement[0] = False
+                                if self.axlX < -0.1:
+                                    self.movement[0] = True
+                                    self.movement[1] = False
+                                if -0.1 < self.axlX and self.axlX < 0.1:
+                                    self.movement[0], self.movement[1] = False, False
+                                if self.btnA > 0.5: # JUMP
+                                    if self.jumps_left > 0:
+                                        self.player.velocity[1] = -2.7
+                                        self.jumps_left -= 1
+
+                                if self.rightBump > 0 and self.energy > 0:
+                                    self.energy -= 0.1
+                                    self.run_speed = 1.5  # Erhöhe die Geschwindigkeit beim Rennen
+                                if self.rightBump < 0 or self.energy <= 0:
+                                    self.run_speed = 0.5  # Setze die Geschwindigkeit zurück
+
+                                if self.axrX < -0.7:
+                                    if self.axrY > -0.7 and self.axrY < 0.7:
+                                        print("Links")
+                                        self.inWorld_ItemSelect("left")
+                                elif self.axrX > 0.7:
+                                    if self.axrY > -0.7 and self.axrY < 0.7:
+                                        print("Rechts")
+                                        self.inWorld_ItemSelect("right")
+                                elif self.axrX > -0.7 and self.axlX < 0.7:
+                                    if self.axrY > 0.7:
+                                        print("Unten")
+                                        self.inWorld_ItemSelect("bottom")
+                                    elif self.axrY < -0.7:
+                                        print("Oben")
+                                        self.inWorld_ItemSelect("top")
+                                    elif self.axrY > -0.7 and self.axrY < 0.7:
+                                        self.inWorld_ItemSelect("middle")
+                                        pass
+                                #print(f"Right Stick X: {self.axrX}, Right Stick Y: {self.axrY}")
+
+                            if self.startBTN > 0.5 and not self.pause:
+                                if self.changePauseState:
+                                    self.pause = True
+                                    print(self.pause)
+                                    self.changePauseState = False
+                            elif self.startBTN > 0.5 and self.pause:
+                                if self.changePauseState:
+                                    self.pause = False
+                                    print(self.pause)
+                                    self.changePauseState = False
+                            if self.startBTN < 0.5:
+                                self.changePauseState = True
+
+                        # Keyboard
+                        if event.type == pygame.KEYDOWN:
+                            if not self.pause:
+                                if event.key == pygame.K_LEFT:  # MOVE LEFT
+                                    self.movement[0] = True
+                                if event.key == pygame.K_RIGHT:  # MOVE RIGHT
+                                    self.movement[1] = True
+                                if event.key == pygame.K_SPACE:  # JUMP
+                                    if self.jumps_left > 0:
+                                        self.player.velocity[1] = -2.7
+                                        self.jumps_left -= 1
+                                if event.key == pygame.K_LSHIFT and self.energy > 0:  # RUN
+                                    self.energy -= 0.1
+                                    self.run_speed = 1.5  # Erhöhe die Geschwindigkeit beim Rennen
+                            if event.key == pygame.K_ESCAPE and not self.pause:
+                                if self.changePauseState:
+                                    self.pause = True
+                                    print(self.pause)
+                                    self.changePauseState = False
+                            if event.key == pygame.K_ESCAPE and self.pause:
+                                if self.changePauseState:
+                                    self.pause = False
+                                    print(self.pause)
+                                    self.changePauseState = False
+
+                            if event.key == pygame.K_TAB: #s and event.key == pygame.K_t and (event.key == pygame.K_KP_DIVIDE or event.key == pygame.K_SLASH):
+                                self.console_active = not self.console_active  # Toggle console
+
+                            if self.console_active:
+                                if event.key == pygame.K_BACKSPACE:
+                                    self.console_input = self.console_input[:-1]
+                                elif event.key == pygame.K_RETURN:
+                                    self.console_output.append("> " + self.console_input)
+                                    self.execute_command(self.console_input)
+                                    self.console_input = ''
+                                else:
+                                    self.console_input += event.unicode
+
+                        if event.type == pygame.KEYUP:
+                            if event.key == pygame.K_LEFT:
                                 self.movement[0] = False
-                            if self.axlX < -0.1:
-                                self.movement[0] = True
+                            if event.key == pygame.K_RIGHT:
                                 self.movement[1] = False
-                            if -0.1 < self.axlX and self.axlX < 0.1:
-                                self.movement[0], self.movement[1] = False, False
-                            if self.btnA > 0.5: # JUMP
-                                if self.jumps_left > 0:
-                                    self.player.velocity[1] = -2.7
-                                    self.jumps_left -= 1
-
-                            if self.rightBump > 0 and self.energy > 0:
-                                self.energy -= 0.1
-                                self.run_speed = 1.5  # Erhöhe die Geschwindigkeit beim Rennen
-                            if self.rightBump < 0 or self.energy <= 0:
+                            if event.key == pygame.K_LSHIFT:  # STOP RUNNING
                                 self.run_speed = 0.5  # Setze die Geschwindigkeit zurück
+                            if event.key == pygame.K_ESCAPE:
+                                self.changePauseState = True
+                        if self.energy <= 0:
+                            self.run_speed = 0.5
 
-                            if self.axrX < -0.7:
-                                if self.axrY > -0.7 and self.axrY < 0.7:
-                                    print("Links")
-                                    self.inWorld_ItemSelect("left")
-                            elif self.axrX > 0.7:
-                                if self.axrY > -0.7 and self.axrY < 0.7:
-                                    print("Rechts")
-                                    self.inWorld_ItemSelect("right")
-                            elif self.axrX > -0.7 and self.axlX < 0.7:
-                                if self.axrY > 0.7:
-                                    print("Unten")
-                                    self.inWorld_ItemSelect("bottom")
-                                elif self.axrY < -0.7:
-                                    print("Oben")
-                                    self.inWorld_ItemSelect("top")
-                                elif self.axrY > -0.7 and self.axrY < 0.7:
-                                    self.inWorld_ItemSelect("middle")
-                                    pass
-                            #print(f"Right Stick X: {self.axrX}, Right Stick Y: {self.axrY}")
+                    if not self.pause:
+                        if os.path.exists(self.SAVE_PATH):
+                            for level in self.worldlist:
+                                self.gamesave.checkUnlock(level, self.SAVE_PATH)
+                        else:
+                            print(f"[WARNING] Speicherdatei nicht gefunden: {self.SAVE_PATH}")
 
-                        if self.startBTN > 0.5 and not self.pause:
-                            if self.changePauseState:
-                                self.pause = True
-                                print(self.pause)
-                                self.changePauseState = False
-                        elif self.startBTN > 0.5 and self.pause:
-                            if self.changePauseState:
-                                self.pause = False
-                                print(self.pause)
-                                self.changePauseState = False
-                        if self.startBTN < 0.5:
-                            self.changePauseState = True
+                        self.display.blit(self.assets['background'], (0, 0))
 
-                    # Keyboard
-                    if event.type == pygame.KEYDOWN:
-                        if not self.pause:
-                            if event.key == pygame.K_LEFT:  # MOVE LEFT
-                                self.movement[0] = True
-                            if event.key == pygame.K_RIGHT:  # MOVE RIGHT
-                                self.movement[1] = True
-                            if event.key == pygame.K_SPACE:  # JUMP
-                                if self.jumps_left > 0:
-                                    self.player.velocity[1] = -2.7
-                                    self.jumps_left -= 1
-                            if event.key == pygame.K_LSHIFT and self.energy > 0:  # RUN
-                                self.energy -= 0.1
-                                self.run_speed = 1.5  # Erhöhe die Geschwindigkeit beim Rennen
-                        if event.key == pygame.K_ESCAPE and not self.pause:
-                            if self.changePauseState:
-                                self.pause = True
-                                print(self.pause)
-                                self.changePauseState = False
+                        self.scroll[0] += (self.player.rect().centerx - self.display.get_width() / 2 - self.scroll[0]) / 30
+                        self.scroll[1] += (self.player.rect().centery - self.display.get_height() / 2 - self.scroll[1]) / 30
+                        render_scroll = (int(self.scroll[0]), int(self.scroll[1]))
+                        self.player.update(self.tilemap, (self.movement[1] - self.movement[0], 0))
+
+                        self.tilemap.render(self.display, offset=render_scroll)
+
+
+                        self.player.render(self.display, offset=render_scroll)
+                        for enemy in self.enemies:
+                            enemy.update(self.tilemap, (0, 0))
+                            enemy.render(self.display, offset=render_scroll)
+                            if self.player.rect().colliderect(enemy.rect()):
+                                player_rect = self.player.rect()
+                                enemy_rect = enemy.rect()
+
+
+                                # Berechne die Kollision von jeder Seite
+                                if player_rect.bottom > enemy_rect.top and player_rect.top < enemy_rect.top:
+                                    # Spieler trifft den Gegner von oben – kein Schaden
+                                    self.enemies.remove(enemy)
+                                else:
+                                    # Schaden nur bei Kollision von links, rechts oder unten
+                                    self.health_points -= 5
+
+
+
+                        self.player.update(self.tilemap, ((self.movement[1] - self.movement[0]) * self.run_speed, 0))
+
+                        if self.player.collisions['down']:
+                            self.jumps_left = 1  # Reset jumps_left when the player lands
+
+                        if self.player.rect().y > self.display.get_height():
+                            self.player_lives -= 1
+                            if self.player_lives > 0:
+                                self.player.pos[0], self.player.pos[1] = self.spawn_location[0], self.spawn_location[1] - 2
+                            else:
+                                t = pygame.time.get_ticks()
+                                print(t/1000)
+                                pygame.quit()
+                                sys.exit()
+                        if self.health_points <= 0:
+                            self.player_lives -= 1
+                            self.health_points = 6
+                            if self.player_lives > 0:
+                                self.player.pos[0], self.player.pos[1] = self.spawn_location[0], self.spawn_location[1] - 2
+                            else:
+                                t = pygame.time.get_ticks()
+                                print(t/1000)
+                                pygame.quit()
+                                sys.exit()
+
+                        life_text = pygame.font.Font.render(pygame.font.Font(None, 24), f"Lives: {self.player_lives}", True, (255, 255, 255))
+                        energy_text = pygame.font.Font.render(pygame.font.Font(None, 24), f"Energy: {int(self.energy)}", True, (255, 255, 255))
+                        self.display.blit(life_text, (10, 10))
+                        self.display.blit(energy_text, (10, 30))
+                        if hasattr(self, 'selected_itemslot') and not self.selected_itemslot == "middle":
+                            pygame.draw.circle(self.display, (255, 255, 0), (self.display.get_width() // 2, self.display.get_height() // 2), 40, 20)
+                        #self.enemyA.attack(self.player.pos, 'fireball', offset=render_scroll)
+                        for entity in self.physicsentities:
+                            entity.drawHitbox(self.display, offset=render_scroll)
+
+
+                        self.display.blit(pygame.image.load("assets/images/items/schal_der_leichtigkeit.png"), (100, 100))
+                        if self.console_active:
+                            pygame.draw.rect(self.display, (0, 0, 0), (0, self.display.get_height() - 60, self.display.get_width(), 60))
+                            input_surface = self.consolefont.render(self.console_input, True, (0, 255, 0))
+                            self.display.blit(input_surface, (10, self.display.get_height() - 50))
+
+                            for i, line in enumerate(self.console_output[-2:]):  # Show last 2 lines
+                                output_surface = self.consolefont.render(line, True, (255, 255, 255))
+                                self.display.blit(output_surface, (10, self.display.get_height() - 70 - (20 * i)))
+
+                        self.screen.blit(pygame.transform.scale(self.display, self.screen.get_size()), (0, 0))
+                        pygame.display.set_caption('Platformer')
+                        pygame.display.update()
+                        self.clock.tick(60)
+                if self.pause: # PAUSE MENU
+                    for event in pygame.event.get():
+                        if event.type == pygame.QUIT:
+                            pygame.quit()
+                            sys.exit()
+                        if event.type == pygame.KEYDOWN:
+                            if event.key == pygame.K_ESCAPE and not self.pause:
+                                if self.changePauseState:
+                                    self.pause = True
+                                    print(self.pause)
+                                    self.changePauseState = False
                             elif event.key == pygame.K_ESCAPE and self.pause:
                                 if self.changePauseState:
                                     self.pause = False
-                                print(self.pause)
-                                self.changePauseState = False
-
-                        if event.key == pygame.K_TAB: #s and event.key == pygame.K_t and (event.key == pygame.K_KP_DIVIDE or event.key == pygame.K_SLASH):
-                            self.console_active = not self.console_active  # Toggle console
-
-                        elif self.console_active:
-                            if event.key == pygame.K_BACKSPACE:
-                                self.console_input = self.console_input[:-1]
-                            elif event.key == pygame.K_RETURN:
-                                self.console_output.append("> " + self.console_input)
-                                self.execute_command(self.console_input)
-                                self.console_input = ''
-                            else:
-                                self.console_input += event.unicode
-
-                    if event.type == pygame.KEYUP:
-                        if event.key == pygame.K_LEFT:
-                            self.movement[0] = False
-                        if event.key == pygame.K_RIGHT:
-                            self.movement[1] = False
-                        if event.key == pygame.K_LSHIFT:  # STOP RUNNING
-                            self.run_speed = 0.5  # Setze die Geschwindigkeit zurück
-                        if event.key == pygame.K_ESCAPE:
-                            self.changePauseState = True
-                    if self.energy <= 0:
-                        self.run_speed = 0.5
-                    
-                if not self.pause:
-                    if os.path.exists(self.SAVE_PATH):
-                        for level in self.worldlist:
-                            self.gamesave.checkUnlock(level, self.SAVE_PATH)
-                    else:
-                        print(f"[WARNING] Speicherdatei nicht gefunden: {self.SAVE_PATH}")
-
-                    self.display.blit(self.assets['background'], (0, 0))
-
-                    self.scroll[0] += (self.player.rect().centerx - self.display.get_width() / 2 - self.scroll[0]) / 30
-                    self.scroll[1] += (self.player.rect().centery - self.display.get_height() / 2 - self.scroll[1]) / 30
-                    render_scroll = (int(self.scroll[0]), int(self.scroll[1]))
-                    self.player.update(self.tilemap, (self.movement[1] - self.movement[0], 0))
-
-                    self.tilemap.render(self.display, offset=render_scroll)
-
-                    
-                    self.player.render(self.display, offset=render_scroll)
-                    for enemy in self.enemies:
-                        enemy.update(self.tilemap, (0, 0))
-                        enemy.render(self.display, offset=render_scroll)
-                        if self.player.rect().colliderect(enemy.rect()):
-                            player_rect = self.player.rect()
-                            enemy_rect = enemy.rect()
-                            
-
-                            # Berechne die Kollision von jeder Seite
-                            if player_rect.bottom > enemy_rect.top and player_rect.top < enemy_rect.top:
-                                # Spieler trifft den Gegner von oben – kein Schaden
-                                self.enemies.remove(enemy)
-                            else:
-                                # Schaden nur bei Kollision von links, rechts oder unten
-                                self.health_points -= 5
-
-
-
-                    self.player.update(self.tilemap, ((self.movement[1] - self.movement[0]) * self.run_speed, 0))
-
-                    if self.player.collisions['down']:
-                        self.jumps_left = 1  # Reset jumps_left when the player lands
-
-                    if self.player.rect().y > self.display.get_height():
-                        self.player_lives -= 1
-                        if self.player_lives > 0:
-                            self.player.pos[0], self.player.pos[1] = self.spawn_location[0], self.spawn_location[1] - 2
-                        else:
-                            t = pygame.time.get_ticks()
-                            print(t/1000)
-                            pygame.quit()
-                            sys.exit()
-                    if self.health_points <= 0:
-                        self.player_lives -= 1
-                        self.health_points = 6
-                        if self.player_lives > 0:
-                            self.player.pos[0], self.player.pos[1] = self.spawn_location[0], self.spawn_location[1] - 2
-                        else:
-                            t = pygame.time.get_ticks()
-                            print(t/1000)
-                            pygame.quit()
-                            sys.exit()
-
-                    life_text = pygame.font.Font.render(pygame.font.Font(None, 24), f"Lives: {self.player_lives}", True, (255, 255, 255))
-                    energy_text = pygame.font.Font.render(pygame.font.Font(None, 24), f"Energy: {int(self.energy)}", True, (255, 255, 255))
-                    self.display.blit(life_text, (10, 10))
-                    self.display.blit(energy_text, (10, 30))
-                    if hasattr(self, 'selected_itemslot') and not self.selected_itemslot == "middle":
-                        pygame.draw.circle(self.display, (255, 255, 0), (self.display.get_width() // 2, self.display.get_height() // 2), 40, 20)
-                    #self.enemyA.attack(self.player.pos, 'fireball', offset=render_scroll)
-                    for entity in self.physicsentities:
-                        entity.drawHitbox(self.display, offset=render_scroll)
-
-
-                    self.display.blit(pygame.image.load("assets/images/items/schal_der_leichtigkeit.png"), (100, 100))
-                    if self.console_active:
-                        pygame.draw.rect(self.display, (0, 0, 0), (0, self.display.get_height() - 60, self.display.get_width(), 60))
-                        input_surface = self.consolefont.render(self.console_input, True, (0, 255, 0))
-                        self.display.blit(input_surface, (10, self.display.get_height() - 50))
-
-                        for i, line in enumerate(self.console_output[-2:]):  # Show last 2 lines
-                            output_surface = self.consolefont.render(line, True, (255, 255, 255))
-                            self.display.blit(output_surface, (10, self.display.get_height() - 70 - (20 * i)))
-
-                    self.screen.blit(pygame.transform.scale(self.display, self.screen.get_size()), (0, 0))
-                    pygame.display.set_caption('Platformer')
-                    pygame.display.update()
-                    self.clock.tick(60)
-                if self.pause: # PAUSE MENU
+                                    print(self.pause)
+                                    self.changePauseState = False
+                        if event.type == pygame.KEYUP:
+                            if event.key == pygame.K_ESCAPE:
+                                self.changePauseState = True
                     pygame.display.set_caption('Platformer (Paused)')
                     font = pygame.font.Font(None, 36)
                     text = pygame.font.Font.render(font, "Paused", True, (255, 255, 255))
