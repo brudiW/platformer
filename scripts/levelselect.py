@@ -64,9 +64,11 @@ class LevelSelect:
         self.figur = pygame.Rect(self.pos[0], self.pos[1], 5, 13)
         #pygame.draw.rect(self.display, (255, 0, 0), (self.pos[0] - offset[0], self.pos[1] - offset[1], 5, 13), 1)
 
-    
-
-    
+    def reset(self):
+        self.pos = [0, 0]
+        self.direction = [0, 0]
+        self.figur = pygame.Rect(self.pos[0], self.pos[1], 5, 13)
+        self.scroll = [0, 0]
 
 
     def run(self):
@@ -199,10 +201,12 @@ class Overworld:
                             display.blit(asset, (tile['pos'][0] * self.tile_size - offset[0], tile['pos'][1] * self.tile_size - offset[1]))
         for button in self.game.ls.buttonAs:
             if self.game.ls.figur.colliderect(button):
-                print("RED BUTTON PRESSED")
+                self.game.tilemap.load('assets/maps/1-3.json')
+                self.game.mainstate = "game"
         for button in self.game.ls.buttonBs:
             if self.game.ls.figur.colliderect(button):
                 print("GREEN BUTTON PRESSED")
+                self.game.tilemap.load('assets/maps/1-1.json')
                 self.game.mainstate = "game"
 
 class OverworldEditor:
