@@ -85,7 +85,7 @@ class Game:
         self.movement = [False, False] # links rechts bewegen
 
         self.tilemap = Tilemap(self, tile_size=16) # Map Laden
-        self.tilemap.load('assets/maps/1-1.json')
+        self.tilemap.load('assets/maps/1-3.json')
         
         self.assets = { # Assets
             'grass': load_images('images/tiles/grass'),
@@ -112,7 +112,7 @@ class Game:
         self.gamesave.updateLevel("1-2", {"unlocked": True,"completed": True, "time": 10}, self.SAVE_PATH) # // DEBUG
         print(self.gamesave.getCoins(self.SAVE_PATH)) # // DEBUG
 
-
+  
         self.player = Player(self, (self.tilemap.playerSpawn()[0], self.tilemap.playerSpawn()[1]), (5, 13)) # Player Erstellen
         self.enemyA = Enemy(self, "enemy-1", (300, 60), (16, 16), 'fireball', 3)
         self.enemies.append(self.enemyA)
@@ -335,7 +335,7 @@ class Game:
     
     def run(self):
         #Main Game Loop
-        self.mainstate = "game"
+        self.mainstate = "start"
         while True: 
             if self.mainstate == "select":
                 self.ls.run()
