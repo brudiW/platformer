@@ -58,8 +58,11 @@ class Tilemap:
         return rects
     
     def playerSpawn(self):
-        self.spawn = self.header['worldSpawn']
-        return self.spawn[0], self.spawn[1]
+        #if self.header.hasattr('worldSpawn'):
+            self.spawn = self.header['worldSpawn']
+            return self.spawn[0], self.spawn[1]
+        #else:
+        #    return (100, 100)
         
     def getBackground(self):
         self.background = self.header['background']
@@ -116,6 +119,8 @@ class Tilemap:
         
         for mirror in self.game.mirrors[:]:
             if self.game.player.rect().colliderect(mirror):
-                pygame.quit()
+                self.game.mainstate = "select"
+                self.game.reset()
+                self.game.ls.reset()
             else:
                 surf.blit(self.game.assets['mirror'], (mirror.x - offset[0], mirror.y - offset[1]))
