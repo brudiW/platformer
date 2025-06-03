@@ -21,6 +21,7 @@ from scripts.modloader import ModLoader
 from scripts.mainmenu import MainMenu
 from scripts.button import Button
 from scripts.levelselect import LevelSelect
+from scripts.shop import Shop
 
 class Game:
     def __init__(self):
@@ -81,6 +82,9 @@ class Game:
         
         for itemslot in self.item_slots.values():
             print(f"{itemslot}")
+
+        self.shop = Shop(self)
+        self.shop.getShopItems()
         
         self.movement = [False, False] # links rechts bewegen
 
@@ -88,16 +92,16 @@ class Game:
         self.tilemap.load('assets/maps/1-3.json')
         
         self.assets = { # Assets
-            'grass': load_images('images/tiles/grass'),
-            'coin': load_images('images/coin'),
-            'player': load_image('images/entities/Player.png'),
-            'background': load_image(f"images/background.png"),
-            'decor': load_images('images/decor'),
-            'checkpoint': load_image('images/checkpoint/checkpoint.png'),
-            'mirror': load_image('images/mirror/mirror.png'),
-            'stone': load_images('images/tiles/stone'),
-            'enemy-1': load_image('images/entities/enemy-1.png'),
-            'fireball': load_image('images/attacks/fireball.png')
+            'grass': load_images('assets/images/tiles/grass'),
+            'coin': load_images('assets/images/coin'),
+            'player': load_image('assets/images/entities/Player.png'),
+            'background': load_image(f"assets/images/background.png"),
+            'decor': load_images('assets/images/decor'),
+            'checkpoint': load_image('assets/images/checkpoint/checkpoint.png'),
+            'mirror': load_image('assets/images/mirror/mirror.png'),
+            'stone': load_images('assets/images/tiles/stone'),
+            'enemy-1': load_image('assets/images/entities/enemy-1.png'),
+            'fireball': load_image('assets/images/attacks/fireball.png')
         }
 
         self.worldlist = [
@@ -335,7 +339,7 @@ class Game:
     
     def run(self):
         #Main Game Loop
-        self.mainstate = "start"
+        self.mainstate = "shop"
         while True: 
             if self.mainstate == "select":
                 self.ls.run()
@@ -347,6 +351,11 @@ class Game:
                 self.menu.showMainMenu()
                 pygame.display.set_caption("MAIN MENU")
                 pygame.display.update()
+            if self.mainstate == "shop":
+                self.shop.showShop(self.display)
+                self.screen.blit(pygame.transform.scale(self.display, self.screen.get_size()), (0, 0))
+                pygame.display.update()
+                self.clock.tick(60)
             if self.mainstate == "game":
                 if not self.pause:
                     self.scroll[0] += (self.player.rect().centerx - self.display.get_width() / 2 - self.scroll[0]) / 30
