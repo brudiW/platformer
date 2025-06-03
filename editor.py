@@ -18,12 +18,12 @@ class Editor:
         self.clock = pygame.time.Clock()
         
         self.assets = {
-            'stone': load_images('images/tiles/stone'),
-            'grass': load_images('images/tiles/grass'),
-            'coin': load_images('images/coin'),
-            'decor': load_images('images/decor'),
-            'checkpoint': load_images('images/checkpoint'),
-            'mirror': load_images('images/mirror'),
+            'stone': load_images('assets/images/tiles/stone'),
+            'grass': load_images('assets/images/tiles/grass'),
+            'coin': load_images('assets/images/coin'),
+            'decor': load_images('assets/images/decor'),
+            'checkpoint': load_images('assets/images/checkpoint'),
+            'mirror': load_images('assets/images/mirror'),
         }
         
         self.movement = [False, False, False, False]
