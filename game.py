@@ -41,8 +41,9 @@ class Game:
         
 
         # Programm Fenster erstellung
+        flags = pygame.RESIZEABLE
         pygame.display.set_caption('Platformer')
-        self.screen = pygame.display.set_mode((640, 480))
+        self.screen = pygame.display.set_mode((640, 480), flags)
         self.display = pygame.Surface((320, 240))
         self.console_active = False
         self.console_input = ''
