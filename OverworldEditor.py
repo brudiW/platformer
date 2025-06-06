@@ -5,7 +5,7 @@ import pygame
 from scripts.utils import load_images
 #from scripts.tilemap import Tilemap
 from scripts.levelselect import Overworld
-
+ 
 RENDER_SCALE = 2.0
 
 class OverworldEditor:
@@ -21,6 +21,11 @@ class OverworldEditor:
         
         self.assets = {
             'wgrass': load_images('images/tiles/world 1/grass'),
+            'plant': load_images('images/tiles/world 1/plants'),
+            'tree': load_images('images/tiles/world 1/tree'),
+            'bridge': load_images('images/tiles/world 1/bridge'),
+            'cave': load_images('images/tiles/world 1/cave'),
+            'castle': load_images('images/tiles/world 1/castle'),
             'path': load_images('images/tiles/world 1/path'),
             'buttons': load_images('images/tiles/world 1/buttons')
         }
