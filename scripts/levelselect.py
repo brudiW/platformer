@@ -26,15 +26,15 @@ class LevelSelect:
         self.clock = pygame.time.Clock()
 
         self.assets = {
-            'grass': load_images('images/tiles/grass'),
             'player': load_image('images/entities/player.png'),
-            'coin': load_images('images/coin'),
-            'decor': load_images('images/decor'),
-            'checkpoint': load_images('images/checkpoint'),
-            'mirror': load_images('images/mirror'),
-            'world-1': load_images('images/tiles/world 1'),
-            'button1': load_image('images/tiles/world 1/button1.png'),
-            'button2': load_image('images/tiles/world 1/button2.png')
+            'wgrass': load_images('images/tiles/world 1/grass'),
+            'plant': load_images('images/tiles/world 1/plants'),
+            'tree': load_images('images/tiles/world 1/tree'),
+            'bridge': load_images('images/tiles/world 1/bridge'),
+            'cave': load_images('images/tiles/world 1/cave'),
+            'castle': load_images('images/tiles/world 1/castle'),
+            'path': load_images('images/tiles/world 1/path'),
+            'buttons': load_images('images/tiles/world 1/buttons')
         }
         self.flip = False
         self.buttonAs = []
@@ -199,12 +199,12 @@ class Overworld:
                                 display.blit(asset[0], (tile['pos'][0] * self.tile_size - offset[0], tile['pos'][1] * self.tile_size - offset[1]))
                         else:
                             display.blit(asset, (tile['pos'][0] * self.tile_size - offset[0], tile['pos'][1] * self.tile_size - offset[1]))
-        for button in self.game.ls.buttonAs:
-            if self.game.ls.figur.colliderect(button):
-                self.game.tilemap.load('assets/maps/1-3.json')
-                self.game.mainstate = "game"
-        for button in self.game.ls.buttonBs:
-            if self.game.ls.figur.colliderect(button):
-                print("GREEN BUTTON PRESSED")
-                self.game.tilemap.load('assets/maps/1-1.json')
-                self.game.mainstate = "game"
+        # for button in self.game.ls.buttonAs:
+        #     if self.game.ls.figur.colliderect(button):
+        #         self.game.tilemap.load('assets/maps/1-3.json')
+        #         self.game.mainstate = "game"
+        # for button in self.game.ls.buttonBs:
+        #     if self.game.ls.figur.colliderect(button):
+        #         print("GREEN BUTTON PRESSED")
+        #         self.game.tilemap.load('assets/maps/1-1.json')
+        #         self.game.mainstate = "game"
