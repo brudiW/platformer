@@ -63,6 +63,7 @@ class GameSave:
             self.items = map_data['items']
         except FileNotFoundError:
             print(f"[WARNING] Speicherdatei nicht gefunden: {path}")
+            self.create("New Save", path)
         except json.JSONDecodeError:
             print(f"[ERROR] Fehler beim Laden der JSON-Datei: {path}")
 
@@ -122,3 +123,15 @@ class GameSave:
                 self.updateLevelUnlock(level, True, path)
             else:
                 self.updateLevelUnlock(level, False, path)
+
+    def getItems(self, path):
+        self.load(path)
+        return self.items
+    
+    def addItem(self, id, item, path):
+        self.load(path)
+        if id not in self.items:
+            self.items[id] = item.getItem()
+            self.save(path)
+        else:
+            print(f"[WARNING] Item '{id}' already exists in save data.")

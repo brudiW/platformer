@@ -5,7 +5,8 @@
         "worldSpawn": [
             100,
             100
-        ]
+        ],
+        "background": "background"
     },
     "tilemap": {
         "8;8": {

@@ -129,8 +129,8 @@ class Enemy(PhysicsEntity):
             if random.random() < 0.01 and self.collisions['down']:
                 self.velocity[1] = -4  # zufälliger Sprung
     
-        # Attackieren, wenn nah
-        if distance < 120:
-            self.attack((player_x, player_y), self.attack_type)
-
+        ## Attackieren, wenn nah
+        #if distance < 120:
+        #    self.attack((player_x, player_y), self.attack_type)
+#
         return move_x, 0

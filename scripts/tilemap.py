@@ -24,7 +24,21 @@ class Tilemap:
         self.tile_size = tile_size
         self.header = {}
         self.tilemap = {}
-        self.offgrid_tiles = {}    
+        self.offgrid_tiles = {}
+
+        self.coinIndex = 1
+        self.last_coin_anim = 0
+        self.coin_anim_cooldown = 100  # ms pro Frame
+
+    def update_coin_animation(self):
+        now = pygame.time.get_ticks()
+        if now - self.last_coin_anim > self.coin_anim_cooldown:
+            self.coinIndex += 1
+            if self.coinIndex > 6:
+                self.coinIndex = 1
+            self.last_coin_anim = now
+
+
     def tiles_around(self, pos):
         tiles = []
         tile_loc = (int(pos[0] // self.tile_size), int(pos[1] // self.tile_size))
@@ -70,12 +84,16 @@ class Tilemap:
 
 
     def render(self, surf, offset=(0, 0)):
-        for coin in self.game.coin_rects:  # Copy for safe removal
+        self.update_coin_animation()
+
+        for coin in self.game.coin_rects:
             if self.game.player.rect().colliderect(coin):
                 self.game.coin_rects.remove(coin)
-                self.tilemap.pop(f"{int(coin.x/self.tile_size)};{int(coin.y/self.tile_size)}")
+                self.tilemap.pop(f"{int(coin.x/self.tile_size)};{int(coin.y/self.tile_size)}", None)
+                self.game.gamesave.updateCoins(self.game.SAVE_PATH, self.game.gamesave.getCoins(self.game.SAVE_PATH) + 1)
+                self.game.mp.play_sound('assets/sounds/Coin-collect.mp3')
             else:
-                surf.blit(self.game.assets['coin'][0], (coin.x - offset[0], coin.y - offset[1]))
+                surf.blit(self.game.assets['coin'][self.coinIndex], (coin.x - offset[0], coin.y - offset[1]))
                 
         #print("Coin Length: ", len(self.game.coin_rects))
 
@@ -114,13 +132,27 @@ class Tilemap:
             if self.game.player.rect().colliderect(checkpoint):
                 self.game.spawn_location = (checkpoint.x, checkpoint.y)
                 self.game.checkpoints.remove(checkpoint)  # Optional: Remove checkpoint after activation
+                self.tilemap.pop(f"{int(checkpoint.x/self.tile_size)};{int(checkpoint.y/self.tile_size)}", None)  # Remove from tilemap
             else:
                 surf.blit(self.game.assets['checkpoint'], (checkpoint.x - offset[0], checkpoint.y - offset[1]))
         
         for mirror in self.game.mirrors[:]:
             if self.game.player.rect().colliderect(mirror):
                 self.game.mainstate = "select"
+                self.game.unloadWorld()
                 self.game.reset()
                 self.game.ls.reset()
+                self.game.mp.play('assets/sounds/Overworld.mp3', loop=True)
             else:
                 surf.blit(self.game.assets['mirror'], (mirror.x - offset[0], mirror.y - offset[1]))
+
+        for chest in self.game.chests[:]:
+            if not chest.opened:
+                if self.game.player.rect().colliderect(chest.rect):
+                    self.game.collectChestContents(chest)
+                    chest.opened = True
+                else:
+                    surf.blit(self.game.assets['chest'][0], (chest.rect.x - offset[0], chest.rect.y - offset[1]))
+            else:
+                surf.blit(self.game.assets['chest'][1], (chest.rect.x - offset[0], chest.rect.y - offset[1]))
+

@@ -2,6 +2,7 @@ import os
 import sys
 import pygame
 import json
+import math
 from scripts.utils import load_image, load_images
 
 #from scripts.button import Button
@@ -22,31 +23,39 @@ class LevelSelect:
         self.direction = [0, 0]
         self.figur = pygame.Rect(self.pos[0], self.pos[1], 5, 13)
         self.scroll = [0, 0]
+        self.buttons = []
 
         self.clock = pygame.time.Clock()
 
         self.assets = {
-            'player': load_image('images/entities/player.png'),
-            'wgrass': load_images('images/tiles/world 1/grass'),
-            'plant': load_images('images/tiles/world 1/plants'),
-            'tree': load_images('images/tiles/world 1/tree'),
-            'bridge': load_images('images/tiles/world 1/bridge'),
-            'cave': load_images('images/tiles/world 1/cave'),
-            'castle': load_images('images/tiles/world 1/castle'),
-            'path': load_images('images/tiles/world 1/path'),
-            'buttons': load_images('images/tiles/world 1/buttons')
+            'player': load_image('assets/images/entities/player.png'),
+            'wgrass': load_images('assets/images/tiles/world 1/grass'),
+            'plant': load_images('assets/images/tiles/world 1/plants'),
+            'tree': load_images('assets/images/tiles/world 1/tree'),
+            'bridge': load_images('assets/images/tiles/world 1/bridge'),
+            'cave': load_images('assets/images/tiles/world 1/cave'),
+            'castle': load_images('assets/images/tiles/world 1/castle'),
+            'path': load_images('assets/images/tiles/world 1/path'),
+            'buttons': load_images('assets/images/tiles/world 1/buttons')
         }
         self.flip = False
         self.buttonAs = []
         self.buttonBs = []
-        
+
+
+        for tile in self.overworld.layer0.values():
+            self.overworld.layers[tile['pos'][0], tile['pos'][1]] = tile
         for tile in self.overworld.layer1.values():
-            if tile['type'] == 'button1':
-                button_rect = pygame.Rect(tile['pos'][0]*16,tile['pos'][1]*16, 16, 16)
-                self.buttonAs.append(button_rect)
-            if tile['type'] == 'button2':
-                button_rect = pygame.Rect(tile['pos'][0]*16,tile['pos'][1]*16, 16, 16)
-                self.buttonBs.append(button_rect)
+            self.overworld.layers[tile['pos'][0], tile['pos'][1]] = tile
+        for tile in self.overworld.layer2.values():
+            self.overworld.layers[tile['pos'][0], tile['pos'][1]] = tile
+        for tile in self.overworld.layer3.values():
+            self.overworld.layers[tile['pos'][0], tile['pos'][1]] = tile
+
+        for tile in self.overworld.layers.values():
+            if tile['type'] == 'buttons':
+                button_rect = pygame.Rect(tile['pos'][0] * self.overworld.tile_size, tile['pos'][1] * self.overworld.tile_size, self.overworld.tile_size, self.overworld.tile_size)
+                self.buttons.append(button_rect)
 
 
     def getPos(self):
@@ -55,10 +64,13 @@ class LevelSelect:
     def move(self, direction, offset=(0, 0)):
         #for tile in self.overworld.getCollisionRects(self.pos):
             #if not self.figur.colliderect(tile):
-                if not direction[0] == 0:
-                    self.pos[0] += direction[0]
-                if not direction[1] == 0:
-                    self.pos[1] += direction[1]
+        if not direction[0] == 0:
+            self.pos[0] += direction[0]
+        if not direction[1] == 0:
+            self.pos[1] += direction[1]
+        if self.pos[0] < -100:
+            self.game.mainstate = "start"
+            self.reset()
     
     def render(self, offset=(0, 0)):
         self.figur = pygame.Rect(self.pos[0], self.pos[1], 5, 13)
@@ -119,6 +131,7 @@ class Overworld:
         self.layer1 = {}
         self.layer2 = {}
         self.layer3 = {}
+        self.layers = {}
 
 
     def save(self, path):
@@ -146,6 +159,35 @@ class Overworld:
             if check_loc in self.tilemap:
                 tiles.append(self.tilemap[check_loc])
         return tiles
+    
+    def matchButton(self, button):
+        x = math.floor(int(button.x / self.tile_size))
+        y = math.floor(int(button.y / self.tile_size))
+        match (x,y):
+            case (9, 0):
+                self.game.loadWorld("assets/maps/1-1.json")
+                self.game.ls.reset()
+                self.game.mainstate = 'game'
+                self.game.mp.play('assets/sounds/1-1_and_1-3.mp3', loop=True)
+            case (18, -6): 
+                self.game.loadWorld("assets/maps/1-2.json")
+                self.game.ls.reset()
+                self.game.mainstate = 'game'
+                self.game.mp.play('assets/sounds/1-2.mp3', loop=True)
+            case (27, 0):
+                self.game.loadWorld("assets/maps/1-3.json")
+                self.game.ls.reset()
+                self.game.mainstate = 'game'
+                self.game.mp.play('assets/sounds/1-1_and_1-3.mp3', loop=True)
+            # case (33, 7):
+            #     self.game.loadWorld("assets/maps/1-3.json")
+            #     self.game.ls.reset()
+            #     self.game.mainstate = 'game'
+            
+            # case (43, 0):
+            #     self.game.loadWorld("assets/maps/1-5.json")
+            #     self.game.ls.reset()
+            #     self.game.mainstate = 'game'
 
     def render(self, display, assets, offset=(0, 0)):
         for x in range(offset[0] // self.tile_size, (offset[0] + display.get_width()) // self.tile_size + 1):
@@ -199,12 +241,8 @@ class Overworld:
                                 display.blit(asset[0], (tile['pos'][0] * self.tile_size - offset[0], tile['pos'][1] * self.tile_size - offset[1]))
                         else:
                             display.blit(asset, (tile['pos'][0] * self.tile_size - offset[0], tile['pos'][1] * self.tile_size - offset[1]))
-        # for button in self.game.ls.buttonAs:
-        #     if self.game.ls.figur.colliderect(button):
-        #         self.game.tilemap.load('assets/maps/1-3.json')
-        #         self.game.mainstate = "game"
-        # for button in self.game.ls.buttonBs:
-        #     if self.game.ls.figur.colliderect(button):
-        #         print("GREEN BUTTON PRESSED")
-        #         self.game.tilemap.load('assets/maps/1-1.json')
-        #         self.game.mainstate = "game"
+        for button in self.game.ls.buttons:
+            if self.game.ls.figur.colliderect(button):
+                display.blit(self.game.ls.assets['buttons'][1], (button.x - offset[0], button.y - offset[1]))
+                self.matchButton(button)
+                

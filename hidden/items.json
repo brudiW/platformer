@@ -1,18 +1,17 @@
 {
-    "items":[
-        {
-            "name": "Schal der Leichtigkeit",
-            "description": "Lässt dich leichter fühlen. Ermöglicht: Doppelsprung",
-            "texture": "schal_der_leichtigkeit",
-            "effects": {
-                "double-jump": 1
-            },
-            "rarety": "uncommon",
-            "price": -1,
-            "durability": -1,
-            "unlocked": true,
-            "type": "owned",
-            "item-code": "schal_der_leichtigkeit.py"
-        }
-    ]
+    "schal_der_leichtigkeit": {
+        "name": "Schal der Leichtigkeit",
+        "description": "Lässt dich leichter fühlen. Ermöglicht: Doppelsprung",
+        "texture": "schal_der_leichtigkeit",
+        "effects": {
+            "double-jump": 1
+        },
+        "rarety": "uncommon",
+        "price": -1,
+        "durability": -1,
+        "unlocked": true,
+        "type": "collectable",
+        "item-code": "schal_der_leichtigkeit.py"
+    }
+    
 }

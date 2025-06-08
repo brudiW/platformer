@@ -48,15 +48,44 @@ class Items:
         f = open(path, 'r')
         map_data = json.load(f)
         f.close()
-        self.itemlist = map_data['items']
-        
-        for item in self.itemlist:
-            if item["type"] == "shop":
-                self.add_item(ShopItem(item['name'], item['description'], item['effects'], "assets/images/items/" + item['texture'] + ".png", item['rarety'], item['price'], self.game))
-            elif item['type'] == 'collectable':
-                self.add_item(CollectableItem(item['name'], item['description'], item['effects'], "assets/images/items/" + item['texture'] + ".png", item['rarety'], self.game))
-            elif item['type'] == 'owned':
-                self.add_item(OwnedItem(item['name'], item['description'], item['effects'], "assets/images/items/" + item['texture'] + ".png", item['rarety'], item['durability'], self.game))
+        for item_id, item_data in map_data.items():
+            item_data["id"] = item_id  # Optional, um später auf die ID zuzugreifen
+
+            if item_data["type"] == "shop":
+                item_obj = ShopItem(
+                    item_data['name'],
+                    item_data['description'],
+                    item_data['effects'],
+                    "assets/images/items/" + item_data['texture'] + ".png",
+                    item_data['rarety'],
+                    item_data['price'],
+                    self.game
+                )
+                self.shop_items[item_obj.name] = item_obj
+            elif item_data['type'] == 'collectable':
+                item_obj = CollectableItem(
+                    item_data['name'],
+                    item_data['description'],
+                    item_data['effects'],
+                    "assets/images/items/" + item_data['texture'] + ".png",
+                    item_data['rarety'],
+                    self.game
+                )
+                self.collectables[item_obj.name] = item_obj
+            elif item_data['type'] == 'owned':
+                item_obj = OwnedItem(
+                    item_data['name'],
+                    item_data['description'],
+                    item_data['effects'],
+                    "assets/images/items/" + item_data['texture'] + ".png",
+                    item_data['rarety'],
+                    item_data['durability'],
+                    self.game
+                )
+                self.owned_items[item_obj.name] = item_obj
+            self.items[item_id] = item_obj
+
+
     def list_items(self, sub):
         print("Items:")
         if sub == 'shop':
@@ -93,6 +122,15 @@ class Item:
         
     def getEffect(self):
         return self.effect
+    
+    def getItem(self):
+        return {
+            'name': self.name,
+            'description': self.description,
+            'effect': self.effect,
+            'texture': self.texture,
+            'rarety': self.rarety
+        }
     
 class ShopItem(Item):
     def __init__(self, name, description, effect, texture, rarety, price, game):

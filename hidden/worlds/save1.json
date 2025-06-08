@@ -1,8 +1,8 @@
 {
     "header": {
-        "savename": "save1",
+        "savename": "New Save",
         "saveid": 1,
-        "created": "2025-05-09T08:33:14.230678"
+        "created": "2025-06-08T01:23:30.951816"
     },
     "levels": {
         "1-1": {
@@ -17,12 +17,20 @@
         }
     },
     "stats": {
-        "coins": 1000,
+        "coins": 257,
         "artefacts": {
             "test": "test"
         },
         "enemysKilled": 0,
         "timesDied": 0
     },
-    "items": {}
+    "items": {
+        "test": {
+            "name": "test",
+            "description": "Test Item",
+            "effect": "none",
+            "rarety": "Impossible",
+            "durability": -1
+        }
+    }
 }

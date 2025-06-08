@@ -2,7 +2,7 @@ import sys
 import json
 import pygame
 
-from scripts.utils import load_images
+from scripts.utils import load_images, load_image
 from scripts.tilemap import Tilemap
 
 RENDER_SCALE = 2.0
@@ -24,6 +24,7 @@ class Editor:
             'decor': load_images('assets/images/decor'),
             'checkpoint': load_images('assets/images/checkpoint'),
             'mirror': load_images('assets/images/mirror'),
+            'chest': load_images('assets/images/tiles/chest')
         }
         
         self.movement = [False, False, False, False]
@@ -35,12 +36,14 @@ class Editor:
         
         self.tilemap.mirrors = []
         self.mirrors = []
+        self.chests = []
+        self.tilemap.chests = []
         
         self.tilemap.coin_rects = []
         self.coin_rects = []
 
         try:
-            self.tilemap.load('assets/maps/map.json')
+            self.tilemap.load('assets/maps/1-3.json')
         except FileNotFoundError:
             pass
         
@@ -136,9 +139,19 @@ class Editor:
                     if event.key == pygame.K_t:
                         self.tilemap.autotile()
                     if event.key == pygame.K_o:
-                        self.tilemap.save('assets/maps/map.json')
+                        self.tilemap.save('assets/maps/1-3.json')
                     if event.key == pygame.K_LSHIFT:
                         self.shift = True
+                    if event.key == pygame.K_UP:
+                        self.tile_group = (self.tile_group - 1) % len(self.tile_list)
+                        self.tile_variant = 0
+                    if event.key == pygame.K_DOWN:
+                        self.tile_group = (self.tile_group + 1) % len(self.tile_list)
+                        self.tile_variant = 0
+                    if event.key == pygame.K_LEFT:
+                        self.tile_variant = (self.tile_variant - 1) % len(self.assets[self.tile_list[self.tile_group]])
+                    if event.key == pygame.K_RIGHT:
+                        self.tile_variant = (self.tile_variant + 1) % len(self.assets[self.tile_list[self.tile_group]])
                 if event.type == pygame.KEYUP:
                     if event.key == pygame.K_a:
                         self.movement[0] = False

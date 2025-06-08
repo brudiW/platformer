@@ -1,33 +1,15 @@
-# platformer
-our platformer
+# PLATFORMER
+> Dieser Platformer wurde als Projekt für die Schule gemacht von brudiW und Undertale010607
 
+# VORRAUSSETZUNGEN
+Um das Spiel zu Spielen wird **Python** und die neuste Version von **pygame**
+> pygame kann mit dem Befehl `pip install pygame` in der Kommandozeile installiert werden
 
-## Controller Mapping (Tested with XBox Controller):
-### Left Stick:
+# SPIELSTART
+Um das Spiel zu starten, bitte **START.py** ausführen
 
-- Left -> Right   - Axis 0
-- Up   -> Down    - Axis 1
-### Right Stick:
+## WEITERES
+> - updater.py hat zur zeit noch keine Funktion, dient aber in Zukunft als updater für automatische Updates
+> - editor.py ist der Built-In Level-Editor
 
-- Left -> Right   - Axis 2
-- Up   -> Down    - Axis 3
-### Left Trigger & Right Trigger:
-
-- LT              - Axis 4
-- RT              - Axis 5
-### Buttons:
-
-- A Button        - Button 0
-- B Button        - Button 1
-- X Button        - Button 2
-- Y Button        - Button 3
-- Left Bumper     - Button 4
-- Right Bumper    - Button 5
-- Back Button     - Button 6
-- Start Button    - Button 7
-- L. Stick In     - Button 8
-- R. Stick In     - Button 9
-### Hat/D-pad:
-
-- Down -> Up      - Y Axis
-- Left -> Right   - X Axis
+###### (c) brudiW & Undertale010607, 2025
