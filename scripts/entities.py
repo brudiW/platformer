@@ -13,12 +13,23 @@ class PhysicsEntity:
         self.flip = False
     
     def rect(self):
+        """Gibt das pygame.rect der Entität zurück
+        Returns:
+            pygame.rect: Die Hitbox der Entität"""
         return pygame.Rect(self.pos[0], self.pos[1], self.size[0], self.size[1])
     
     def getPos(self):
+        """Gibt die aktuelle Position der Entität zurück
+        Returns:
+            tuple: Die aktuelle Position der Entität (x, y)"""
         return self.pos[0], self.pos[1]
         
     def update(self, tilemap, movement=(0, 0)):
+        """Aktualisiert die Position der Entität basierend auf der Bewegung und Kollisionen
+        Args:
+            tilemap (Tilemap): Die Tilemap, auf der die Entität sich befindet
+            movement (tuple): Die Bewegung der Entität in Form von (x, y)
+        """
         self.collisions = {'up': False, 'down': False, 'right': False, 'left': False}
         
         frame_movement = (movement[0] + self.velocity[0], movement[1] + self.velocity[1])
@@ -59,9 +70,20 @@ class PhysicsEntity:
             self.velocity[1] = 0
         
     def render(self, surf, offset=(0, 0)):
+        """Zeichnet die Entität auf dem Bildschirm
+        Args:
+            surf (pygame.Surface): Die Oberfläche, auf der die Entität gezeichnet wird
+            offset (tuple): Ein Offset für die Position der Entität auf der Oberfläche
+        """
         surf.blit(pygame.transform.flip(self.game.assets[self.type], self.flip, False), (self.pos[0] - offset[0], self.pos[1] - offset[1]))
 
-    def renderAtt(self, attack, surf , offset=(0, 0)):
+    def renderAtt(self, attack: str, surf, offset=(0, 0)):
+        """Zeichnet den Angriff der Entität auf dem Bildschirm
+        Args:
+            attack (str): Der Typ des Angriffs
+            surf (pygame.Surface): Die Oberfläche, auf der der Angriff gezeichnet wird
+            offset (tuple): Ein Offset für die Position des Angriffs auf der Oberfläche
+        """
         surf.blit(pygame.transform.flip(self.game.assets[attack], self.flip, False), (self.pos[0] - offset[0], self.pos[1] - offset[1]))
     def drawHitbox(self, surf, offset=(0,0)):
         pygame.draw.rect(surf, (255, 0, 0), (self.pos[0] - offset[0], self.pos[1] - offset[1], self.size[0], self.size[1]), 1)
