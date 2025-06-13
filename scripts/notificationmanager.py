@@ -8,16 +8,22 @@ class NotificationManager:
         self.font = pygame.font.SysFont("arialblack", 30)
         self.display_time = 5000  # 5 Sekunden
 
-    def add_notification(self, text):
+    def add_notification(self, text: str):
+        """Fügt eine Benachrichtigung hinzu, die für eine bestimmte Zeit angezeigt wird.
+        Args:
+            text (str): Der anzuzeigende Text der Benachrichtigung.
+        """
         current_time = pygame.time.get_ticks()
         end_time = current_time + self.display_time
         self.notifications.append((text, current_time, end_time))
 
     def update(self):
+        """Aktualisiert die Benachrichtigungen, entfernt abgelaufene."""
         current_time = pygame.time.get_ticks()
         self.notifications = [n for n in self.notifications if n[2] > current_time]
 
     def draw(self):
+        """Zeichnet die Benachrichtigungen auf dem Bildschirm."""
         if not self.notifications:
             return
 

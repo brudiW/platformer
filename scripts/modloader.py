@@ -9,7 +9,12 @@ class ModLoader:
         self.modlist = []
         self.commands = {}  # Store command name -> function
 
-    def load_mods(self, path):
+    def load_mods(self, path: str):
+        """
+        Lädt alle Mods aus dem angegebenen Verzeichnis.
+        Args:
+            path (str): Der Pfad zum Verzeichnis, das die Mods enthält.
+        """
         mod_root = path
         for mod_name in os.listdir(mod_root):
             mod_path = os.path.join(mod_root, mod_name)
@@ -32,7 +37,13 @@ class ModLoader:
                     }
                     exec(code, mod_globals)
 
-    def register_mod(self, mod_name, mod_description, mod_author):
+    def register_mod(self, mod_name: str, mod_description: str, mod_author: str):
+        """ Registriert einen Mod mit den angegebenen Informationen.
+        Args:
+            mod_name (str): Der Name des Mods.
+            mod_description (str): Eine kurze Beschreibung des Mods.
+            mod_author (str): Der Autor des Mods.
+        """
         mod_info = {
             'name': mod_name,
             'description': mod_description,
@@ -42,23 +53,46 @@ class ModLoader:
         print(f"Mod '{mod_name}' by {mod_author} registered.")
 
     def get_mod_list(self):
+        """ Gibt eine Liste aller geladenen Mods zurück.
+        Returns:
+            list: Eine Liste von Dictionaries, die Informationen über die Mods enthalten.
+        """
         if len(self.modlist) == 0:
             return "No mods loaded."
         else:
             return self.modlist
 
     def register_hook(self, hook_func):
+        """ Registriert eine Hook-Funktion, die in jedem Update-Zyklus aufgerufen wird.
+        Args:
+            hook_func (function): Die Funktion, die als Hook registriert werden soll.
+        """
         self.mods.append(hook_func)
     
-    def register_command(self, name, func):
+    def register_command(self, name: str, func):
+        """ Registriert einen Befehl, der später ausgeführt werden kann.
+        Args:
+            name (str): Der Name des Befehls.
+            func (function): Die Funktion, die ausgeführt wird, wenn der Befehl aufgerufen wird.
+        """
         self.commands[name] = func
 
-    def run_command(self, name, *args, **kwargs):
+    def run_command(self, name: str, *args, **kwargs):
+        """ Führt einen registrierten Befehl aus.
+        Args:
+            name (str): Der Name des Befehls.
+            *args: Zusätzliche Argumente, die an den Befehl übergeben werden.
+            **kwargs: Zusätzliche Schlüsselwortargumente, die an den Befehl übergeben werden.
+
+        Returns:
+            Das Ergebnis der Befehlsfunktion, falls vorhanden.
+        """
         if name in self.commands:
             return self.commands[name](*args, **kwargs)
         else:
             print(f"Command '{name}' not found.")
 
     def update(self):
+        """ Führt alle registrierten Hook-Funktionen aus. """
         for hook in self.mods:
             hook()

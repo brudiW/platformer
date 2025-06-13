@@ -8,6 +8,7 @@ class ItemLoader:
         self.items = []
 
     def load_itemCode(self):
+        """Lädt alle Item-Code-Dateien aus dem 'hidden/items'-Verzeichnis und registriert die Hooks."""
         item_root = 'hidden/items'
         for item_name in os.listdir(item_root):
             item_file = os.path.join(item_root, item_name)
@@ -21,14 +22,23 @@ class ItemLoader:
                 exec(code, item_globals)
 
     def register_hook(self, hook_func):
+        """Registriert eine Hook-Funktion, die aufgerufen wird, wenn das Item geladen wird.
+        Args:
+            hook_func (function): Die Funktion, die als Hook registriert werden soll.
+        """
         self.items.append(hook_func)
 
     def update(self):
+        """Ruft alle registrierten Hook-Funktionen auf."""
         for hook in self.items:
             hook()
 
 class Items:
     def __init__(self, game):
+        """Initialisiert die Items-Klasse mit dem Spielobjekt.
+        Args:
+            game (Game): Das Spielobjekt, das die Items verwaltet.
+        """
         self.game = game
         self.items = {}
         self.collectables = {}
@@ -36,6 +46,12 @@ class Items:
         self.owned_items = {}
         
     def add_item(self, item):
+        """Fügt ein Item zu den entsprechenden Sammlungen hinzu.
+        Args:
+            item (Item): Das Item, das hinzugefügt werden soll. Es kann ein ShopItem, CollectableItem oder OwnedItem sein.
+        Raises:
+            ValueError: Wenn der Typ des Items nicht erkannt wird.
+            """
         if isinstance(item, ShopItem):
             self.shop_items[item.name] = item
         elif isinstance(item, CollectableItem):
@@ -44,7 +60,11 @@ class Items:
             self.owned_items[item.name] = item
         else:
             raise ValueError("Invalid item type")
-    def loadItems(self, path):
+    def loadItems(self, path: str):
+        """Lädt Items aus einer JSON-Datei und fügt sie den entsprechenden Sammlungen hinzu.
+        Args:
+            path (str): Der Pfad zur JSON-Datei, die die Item-Daten enthält.
+        """
         f = open(path, 'r')
         map_data = json.load(f)
         f.close()
@@ -86,7 +106,11 @@ class Items:
             self.items[item_id] = item_obj
 
 
-    def list_items(self, sub):
+    def list_items(self, sub: str):
+        """Listet die Items in den verschiedenen Kategorien auf.
+        Args:
+            sub (str): Die Kategorie der Items, die aufgelistet werden soll. Mögliche Werte sind 'shop', 'collectable' und 'owned'.
+        """
         print("Items:")
         if sub == 'shop':
             for item in self.shop_items.values():
@@ -105,10 +129,24 @@ class Items:
         for item in self.items.values():
             print(f" - {item.name}: {item.description}")
 
-    def showItem(self, texture):
+    def showItem(self, texture: str):
+        """Zeigt das Item-Bild an.
+        Args:
+            texture (str): Der Pfad zum Texturbild des Items.
+        """
         return pygame.image.load(texture), (100, 100)
 class Item:
-    def __init__(self, name, description, effect, texture, rarety, game):
+    def __init__(self, name: str, description:str, effect:list, texture:str, rarety:str, game):
+        """Initialisiert ein Item mit den angegebenen Attributen.
+
+        Args:
+            name (str): Der Name des Items.
+            description (str): Eine Beschreibung des Items.
+            effect (list): Der Effekt des Items.
+            texture (str): Der Pfad zur Textur des Items.
+            rarety (str): Die Seltenheit des Items.
+            game (Game): Das Spielobjekt, das das Item verwaltet.
+        """
         self.name = name
         self.description = description
         self.effect = effect
@@ -118,12 +156,24 @@ class Item:
     
 
     def load_texture(self):
+        """Lädt die Textur des Items.
+        Returns:
+            pygame.Surface: Die geladene Textur des Items.
+            """
         return self.texture
         
     def getEffect(self):
+        """Gibt den Effekt des Items zurück.
+        Returns:
+            list: Der Effekt des Items.
+        """
         return self.effect
     
     def getItem(self):
+        """Gibt die Attribute des Items als Dictionary zurück.
+        Returns:
+            dict: Ein Dictionary mit den Attributen des Items.
+        """
         return {
             'name': self.name,
             'description': self.description,
