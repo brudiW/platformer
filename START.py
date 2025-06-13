@@ -1,8 +1,27 @@
-from scripts.intro import play_intro
-import pygame
-from game import Game  # oder wie deine Hauptdatei heißt
-from scripts.music import MusicPlayer
+import sys
+import subprocess
+import pkg_resources
 
+# -------------------------
+# Prüfen & ggf. installieren von pygame
+# -------------------------
+def ensure_pygame():
+    try:
+        import pygame  # noqa
+    except ImportError:
+        print("📦 pygame wird installiert...")
+        subprocess.check_call([sys.executable, "-m", "pip", "install", "pygame"])
+
+# Führe das vor allem anderen aus
+ensure_pygame()
+
+# -------------------------
+# Hauptspiel starten
+# -------------------------
+import pygame
+from scripts.intro import play_intro
+from game import Game
+from scripts.music import MusicPlayer
 
 if __name__ == "__main__":
     pygame.init()
