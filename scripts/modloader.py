@@ -58,7 +58,7 @@ class ModLoader:
             list: Eine Liste von Dictionaries, die Informationen über die Mods enthalten.
         """
         if len(self.modlist) == 0:
-            return "No mods loaded."
+            return "No mods loaded." # Mögliche Fehlerstelle, wenn keine Mods vorhanden
         else:
             return self.modlist
 

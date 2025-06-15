@@ -58,10 +58,21 @@ class LevelSelect:
                 self.buttons.append(button_rect)
 
 
-    def getPos(self):
+    def getPos(self) -> tuple[int, int]:
+        """Gibt die Position des Spielers zurück
+
+        Returns:
+            tuple[int, int]: Die Position des Spielers
+        """
         return self.pos[0], self.pos[1]
 
-    def move(self, direction, offset=(0, 0)):
+    def move(self, direction: list[int], offset=(0, 0)):
+        """Aktuialisiert die Position des Spielers (Bewegt den Spieler)
+
+        Args:
+            direction (list[int]): Die Richtung in die der Spieler bewegt wird
+            offset (tuple, optional): Wird nicht mehr benötigt. Defaults to (0, 0).
+        """
         #for tile in self.overworld.getCollisionRects(self.pos):
             #if not self.figur.colliderect(tile):
         if not direction[0] == 0:
@@ -73,10 +84,17 @@ class LevelSelect:
             self.reset()
     
     def render(self, offset=(0, 0)):
+        """Zeigt den Spieler
+
+        Args:
+            offset (tuple, optional): Wird nicht mehr benötigt. Defaults to (0, 0).
+        """
         self.figur = pygame.Rect(self.pos[0], self.pos[1], 5, 13)
         #pygame.draw.rect(self.display, (255, 0, 0), (self.pos[0] - offset[0], self.pos[1] - offset[1], 5, 13), 1)
 
     def reset(self):
+        """Setzt einige Werte zurück
+        """
         self.pos = [0, 0]
         self.direction = [0, 0]
         self.figur = pygame.Rect(self.pos[0], self.pos[1], 5, 13)
@@ -84,6 +102,8 @@ class LevelSelect:
 
 
     def run(self):
+        """Haupt LevelSelect Loop
+        """
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -134,12 +154,22 @@ class Overworld:
         self.layers = {}
 
 
-    def save(self, path):
+    def save(self, path: str):
+        """Speichert die Overworld Tilemap
+
+        Args:
+            path (str): Der Speicherpfad der Tilemap
+        """
         f = open(path, 'w')
         json.dump({'tilemap': self.tilemap, 'layer0': self.layer0, 'layer1': self.layer1, 'layer2': self.layer2, 'layer3': self.layer3, 'tile_size': self.tile_size}, f)
         f.close()
         
-    def load(self, path):
+    def load(self, path: str):
+        """Lädt die Overworld Tilemap
+
+        Args:
+            path (str): Der Speicherpfad der Tilemap
+        """
         f = open(path, 'r')
         map_data = json.load(f)
         f.close()
@@ -151,7 +181,15 @@ class Overworld:
         self.layer2 = map_data['layer2']
         self.layer3 = map_data['layer3']
 
-    def getCollisionRects(self, pos):
+    def getCollisionRects(self, pos: list[int]) -> list:
+        """Gibt die kolliderbaren Rechtecke zurück
+
+        Args:
+            pos (list[int]): Die Positon des Spielers
+
+        Returns:
+            list: Die kollidierbaren Rechtecke
+        """
         tiles = []
         tile_loc = (int(pos[0] // self.tile_size), int(pos[1] // self.tile_size))
         for offset in NEIGHBOR_OFFSETS:
@@ -159,8 +197,14 @@ class Overworld:
             if check_loc in self.tilemap:
                 tiles.append(self.tilemap[check_loc])
         return tiles
+        
     
-    def matchButton(self, button):
+    def matchButton(self, button: dict):
+        """Paart die Knöpfe in der Levelselect Tilemap mit dem jeweiligen Level
+
+        Args:
+            button (dict): Der gedrückte Button
+        """
         x = math.floor(int(button.x / self.tile_size))
         y = math.floor(int(button.y / self.tile_size))
         match (x,y):
@@ -189,7 +233,14 @@ class Overworld:
             #     self.game.ls.reset()
             #     self.game.mainstate = 'game'
 
-    def render(self, display, assets, offset=(0, 0)):
+    def render(self, display, assets: dict, offset=(0, 0)):
+        """Rendert die Levelselect Tilemap
+
+        Args:
+            display (pygame.Surface): Das Display
+            assets (dict): Eine Liste mit allen Assets
+            offset (tuple, optional): Wie viel die Tilemap verschoben wird. Defaults to (0, 0).
+        """
         for x in range(offset[0] // self.tile_size, (offset[0] + display.get_width()) // self.tile_size + 1):
             for y in range(offset[1] // self.tile_size, (offset[1] + display.get_height()) // self.tile_size + 1):
                 loc = str(x) + ';' + str(y)

@@ -9,11 +9,18 @@ class Shop:
         self.game = game
         
     def getShopItems(self):
+        """Gibt alle Items, welche sich im Shop befinden in der Konsole aus"""
+        # Planung machen mit Return
         print("SHOP:")
         for item in self.game.items.shop_items.values():
             print(f"{item.name}, {item.price}")
 
     def showShop(self, surf):
+        """Zeigt den Shop
+
+        Args:
+            surf (pygame.Surface): Der Bildschirminhalt
+        """
         # Berechne Shop-Fenster
         shop_width = surf.get_width() / 3 + surf.get_width() / 4
         shop_height = surf.get_height() / 3 + surf.get_height() / 4

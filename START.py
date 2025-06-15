@@ -6,6 +6,7 @@ import pkg_resources
 # Prüfen & ggf. installieren von pygame
 # -------------------------
 def ensure_pygame():
+    """Checkt pygame"""
     try:
         import pygame  # noqa
     except ImportError:

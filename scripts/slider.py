@@ -10,10 +10,20 @@ class Slider:
         self.dragging = False
 
     def draw(self, surface):
+        """Zeichnet einen Slider auf den Bildschirm
+
+        Args:
+            surface (pygame.Surface): Der Bildschirm
+        """
         pygame.draw.rect(surface, (180, 180, 180), self.rect)  # slider background
         pygame.draw.rect(surface, (100, 100, 255), self.handle_rect)  # handle
 
     def handle_event(self, event):
+        """Verarbeitet die Eingabe
+
+        Args:
+            event (pygame.event): Der Eingabe
+        """
         if event.type == pygame.MOUSEBUTTONDOWN and self.handle_rect.collidepoint(event.pos):
             self.dragging = True
         elif event.type == pygame.MOUSEBUTTONUP:
@@ -23,5 +33,10 @@ class Slider:
             self.handle_rect.x = new_x - self.handle_rect.width // 2
             self.value = self.min_val + ((self.handle_rect.x - self.rect.x) / self.rect.width) * (self.max_val - self.min_val)
 
-    def get_value(self):
+    def get_value(self) -> float:
+        """Gibt den Wert des Sliders zurück
+
+        Returns:
+            float: der Wert des Sliders
+        """
         return self.value

@@ -11,6 +11,14 @@ class Button():
 		self.clicked = False
 
 	def draw(self, surface):
+		"""Zeichnet einen Button uund gibt zurück, ob der Button gedrückt wurde.
+
+		Args:
+			surface (pygame.Surface): _description_
+
+		Returns:
+			bool: Wurde auf den button gedrückt
+		"""
 		action = False
 		#get mouse position
 		pos = pygame.mouse.get_pos()

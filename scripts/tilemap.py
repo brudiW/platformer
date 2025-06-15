@@ -31,6 +31,8 @@ class Tilemap:
         self.coin_anim_cooldown = 100  # ms pro Frame
 
     def update_coin_animation(self):
+        """Lässt die Coin-Animation ablaufen
+        """
         now = pygame.time.get_ticks()
         if now - self.last_coin_anim > self.coin_anim_cooldown:
             self.coinIndex += 1
@@ -39,7 +41,15 @@ class Tilemap:
             self.last_coin_anim = now
 
 
-    def tiles_around(self, pos):
+    def tiles_around(self, pos: tuple) -> list:
+        """Gibt die kollidierbaren Rechtecke zurück
+
+        Args:
+            pos (tuple): Die Position des Spielers
+
+        Returns:
+            list: Die kollidierbaren Rechtecke
+        """
         tiles = []
         tile_loc = (int(pos[0] // self.tile_size), int(pos[1] // self.tile_size))
         for offset in NEIGHBOR_OFFSETS:
@@ -48,12 +58,22 @@ class Tilemap:
                 tiles.append(self.tilemap[check_loc])
         return tiles
     
-    def save(self, path):
+    def save(self, path: str):
+        """Speichert die Tilemap ab
+
+        Args:
+            path (str): Speicherpfad der Tilemap
+        """
         f = open(path, 'w')
         json.dump({'header': self.header, 'tilemap': self.tilemap, 'tile_size': self.tile_size, 'offgrid': self.offgrid_tiles}, f)
         f.close()
         
-    def load(self, path):
+    def load(self, path:str):
+        """Lädt die Tilemap
+
+        Args:
+            path (str): Speicherpfad der Tilemap
+        """
         f = open(path, 'r')
         map_data = json.load(f)
         f.close()
@@ -64,26 +84,50 @@ class Tilemap:
         self.offgrid_tiles = map_data['offgrid']
         print(self.header)
     
-    def physics_rects_around(self, pos):
+    def physics_rects_around(self, pos: tuple) -> list:
+        """Gibt die kollidierbaren Rechtecke zurück
+
+        Args:
+            pos (tuple): Die Position des Spielers
+
+        Returns:
+            list: Die kollidierbaren Rechtecke
+        """
         rects = []
         for tile in self.tiles_around(pos):
             if tile['type'] in PHYSICS_TILES:
                 rects.append(pygame.Rect(tile['pos'][0] * self.tile_size, tile['pos'][1] * self.tile_size, self.tile_size, self.tile_size))
         return rects
     
-    def playerSpawn(self):
+    def playerSpawn(self) -> tuple:
+            """Gibt den Spielerspawn eines Levels zurück
+
+            Returns:
+                tuple: Der Spielerspawn des Levels
+            """
         #if self.header.hasattr('worldSpawn'):
             self.spawn = self.header['worldSpawn']
             return self.spawn[0], self.spawn[1]
         #else:
         #    return (100, 100)
         
-    def getBackground(self):
+    def getBackground(self) -> str:
+        """Gibt den Hintergrund zurück
+
+        Returns:
+            str: Der Name der Hintergrund .png Datei
+        """
         self.background = self.header['background']
         return self.background
 
 
     def render(self, surf, offset=(0, 0)):
+        """Rendert die Tilemap
+
+        Args:
+            surf (pygame.Surface): Der Bildschirm
+            offset (tuple, optional): _description_. Defaults to (0, 0).
+        """
         self.update_coin_animation()
 
         for coin in self.game.coin_rects:

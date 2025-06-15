@@ -40,55 +40,65 @@ class MainMenu:
 		self.video_button = Button(226, 125, self.video_img, 1)
 		self.audio_button = Button(225, 250, self.audio_img, 1)
 		self.back_button = Button(332, 375, self.back_img, 1)
-	def draw_text(self, text, font, text_col, x, y):
+	def draw_text(self, text: str, font: pygame.font, text_col: pygame.textColor, x: float, y: float):
+		"""Zeigt Text auf dem Bildschirm
+
+		Args:
+			text (str): Der anzuzeigende Text
+			font (pygame.font): Font
+			text_col (pygame.textColor): Farbe
+			x (float): Abstand von links
+			y (float): Abstand von oben
+		"""
 		self.img = font.render(text, True, text_col)
 		self.game.screen.blit(self.img, (x, y))
 	def showMainMenu(self):
-			self.game.screen.fill((52, 78, 91))
+		"""Zeigt das Mainmenu
+		"""
+		self.game.screen.fill((52, 78, 91))
     	#check menu state
-			if self.menu_state == "main":
-      			#draw pause screen buttons
-				if self.start_button.draw(self.game.screen):
-					#self.game_menu = False
-					self.game.mainstate = "select"
-					self.game.mp.play("assets/sounds/Overworld.mp3", loop=True)
-					pygame.time.wait(150)  # Add a 200ms delay
-				if self.options_button.draw(self.game.screen):
-					self.menu_state = "options"
-					pygame.time.wait(150)  # Add a 200ms delay
-				if self.quit_button.draw(self.game.screen):
-					pygame.quit()
-					sys.exit()
-    		#check if the options menu is open
-			if self.menu_state == "options":
-      			#draw the different options buttons
-				if self.video_button.draw(self.game.screen):
-					print("Video Settings")
-					pygame.time.wait(150)  # Add a 200ms delay
-				if self.audio_button.draw(self.game.screen):
-					self.menu_state = "audio"
-					pygame.time.wait(150)  # Add a 200ms delay
-				if self.back_button.draw(self.game.screen):
-					self.menu_state = "main"
-					pygame.time.wait(150)  # Add a 200ms delay
+		if self.menu_state == "main":
+      		#draw pause screen buttons
+			if self.start_button.draw(self.game.screen):
+				#self.game_menu = False
+				self.game.mainstate = "select"
+				self.game.mp.play("assets/sounds/Overworld.mp3", loop=True)
+				pygame.time.wait(150)  # Add a 200ms delay
+			if self.options_button.draw(self.game.screen):
+				self.menu_state = "options"
+				pygame.time.wait(150)  # Add a 200ms delay
+			if self.quit_button.draw(self.game.screen):
+				pygame.quit()
+				sys.exit()
+    	#check if the options menu is open
+		if self.menu_state == "options":
+      		#draw the different options buttons
+			if self.video_button.draw(self.game.screen):
+				print("Video Settings")
+				pygame.time.wait(150)  # Add a 200ms delay
+			if self.audio_button.draw(self.game.screen):
+				self.menu_state = "audio"
+				pygame.time.wait(150)  # Add a 200ms delay
+			if self.back_button.draw(self.game.screen):
+				self.menu_state = "main"
+				pygame.time.wait(150)  # Add a 200ms delay
+		if self.menu_state == "audio":
+			self.draw_text("Musiklautstärke", self.font, self.TEXT_COL, 50, 140)
+			self.draw_text("Effektlautstärke", self.font, self.TEXT_COL, 50, 240)
+			self.music_slider.draw(self.game.screen)
+			self.sfx_slider.draw(self.game.screen)
+			# Lautstärke setzen (optional direkt, sonst extern auslesen)
+			pygame.mixer.music.set_volume(self.music_slider.get_value())
+			# Soundeffekte -> später beim Abspielen jeweils set_volume(self.sfx_slider.get_value())
+			if self.back_button.draw(self.game.screen):
+				self.menu_state = "options"
+				pygame.time.wait(150)
+
+    	#event handler
+		for event in pygame.event.get():
+			if event.type == pygame.QUIT:
+				pygame.quit()
+				sys.exit()
 			if self.menu_state == "audio":
-				self.draw_text("Musiklautstärke", self.font, self.TEXT_COL, 50, 140)
-				self.draw_text("Effektlautstärke", self.font, self.TEXT_COL, 50, 240)
-				self.music_slider.draw(self.game.screen)
-				self.sfx_slider.draw(self.game.screen)
-				# Lautstärke setzen (optional direkt, sonst extern auslesen)
-				pygame.mixer.music.set_volume(self.music_slider.get_value())
-				# Soundeffekte -> später beim Abspielen jeweils set_volume(self.sfx_slider.get_value())
-				if self.back_button.draw(self.game.screen):
-					self.menu_state = "options"
-					pygame.time.wait(150)
-
-
-    		#event handler
-			for event in pygame.event.get():
-				if event.type == pygame.QUIT:
-					pygame.quit()
-					sys.exit()
-				if self.menu_state == "audio":
-					self.music_slider.handle_event(event)
-					self.sfx_slider.handle_event(event)
+				self.music_slider.handle_event(event)
+				self.sfx_slider.handle_event(event)

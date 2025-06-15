@@ -59,6 +59,7 @@ class Editor:
         self.ongrid = True
         
     def run(self):
+        """MAIN EDITOR LOOP"""
         while True:
             self.display.fill((0, 0, 0))
             

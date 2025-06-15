@@ -17,7 +17,7 @@ def load_image(path: str):
     img.set_colorkey((0, 0, 0))
     return img
 
-def load_images(path: str):
+def load_images(path: str) -> list:
     """
     Lädt alle Bilder in einem Verzeichnis.
     Args:

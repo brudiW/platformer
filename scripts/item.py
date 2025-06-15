@@ -21,7 +21,7 @@ class ItemLoader:
                 }
                 exec(code, item_globals)
 
-    def register_hook(self, hook_func):
+    def register_hook(self, hook_func: function):
         """Registriert eine Hook-Funktion, die aufgerufen wird, wenn das Item geladen wird.
         Args:
             hook_func (function): Die Funktion, die als Hook registriert werden soll.
@@ -45,10 +45,10 @@ class Items:
         self.shop_items = {}
         self.owned_items = {}
         
-    def add_item(self, item):
+    def add_item(self, item: dict):
         """Fügt ein Item zu den entsprechenden Sammlungen hinzu.
         Args:
-            item (Item): Das Item, das hinzugefügt werden soll. Es kann ein ShopItem, CollectableItem oder OwnedItem sein.
+            item (dict): Das Item, das hinzugefügt werden soll. Es kann ein ShopItem, CollectableItem oder OwnedItem sein.
         Raises:
             ValueError: Wenn der Typ des Items nicht erkannt wird.
             """
@@ -155,21 +155,21 @@ class Item:
         self.game = game
     
 
-    def load_texture(self):
+    def load_texture(self) -> str:
         """Lädt die Textur des Items.
         Returns:
             pygame.Surface: Die geladene Textur des Items.
             """
         return self.texture
         
-    def getEffect(self):
+    def getEffect(self) -> list:
         """Gibt den Effekt des Items zurück.
         Returns:
             list: Der Effekt des Items.
         """
         return self.effect
     
-    def getItem(self):
+    def getItem(self) -> dict:
         """Gibt die Attribute des Items als Dictionary zurück.
         Returns:
             dict: Ein Dictionary mit den Attributen des Items.
@@ -202,10 +202,20 @@ class OwnedItem(Item):
         self.durability = durability
         
     def use(self):
+        """Verringert die Haltbarkeit des Items um 1
+        """
         if not self.durability == -1 and self.durability > 0:
             self.durability -= 1
     
-    def equip(self, slot):
+    def equip(self, slot: str) -> bool:
+        """Rüstet das Item in den ausgewählten Item-Slot
+
+        Args:
+            slot (str): Der ausgewählte Item-Slot
+
+        Returns:
+            bool: Gibt zurück, ob das Item ausgerüstet wurde
+        """
         if self.durability == 0:
             print("Item is broken")
             return False

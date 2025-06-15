@@ -220,7 +220,9 @@ class Game:
         self.inWorld_ItemSelect("middle")
 
     def saveLog(self):
-        # Speichert die Logdatei in hidden/log.txt
+        """
+        Speichert die Logdatei in hidden/logs/latest.log
+        """
         with open('hidden/logs/latest.log', 'w', encoding='utf-8') as f:
             f.write('\n'.join(self.logtxt))
 
@@ -230,7 +232,12 @@ class Game:
             f.write('\n'.join(self.logtxt))
         print("[INFO] Log saved to hidden/logs/latest.log and " + filename)
 
-    def loadWorld(self, path):
+    def loadWorld(self, path: str):
+        """Lädt die Level-Tilemap aus dem angegebenen Pfad.
+
+        Args:
+            path (str): Der Pfad, aus dem die Level-Tilemap geladen.
+        """
         self.logtxt.append(f"[INFO] [{datetime.datetime.now().strftime('%H:%M:%S.%f')}] Loading world from {path}")
         self.tilemap.load(path)
 
@@ -264,6 +271,8 @@ class Game:
                 self.off_grid_coin_rects.append(coin_rect)
 
     def unloadWorld(self):
+        """Entlädt die Level-Tilemap um keine Probleme beim Laden eines anderen Levels zu verursachen.
+        """
         self.logtxt.append(f"[INFO] [{datetime.datetime.now().strftime('%H:%M:%S.%f')}] Unloading current world")
         self.enemies = []
         self.physicsentities = []
@@ -273,7 +282,12 @@ class Game:
         self.coin_rects = []
         self.off_grid_coin_rects = [] # Rule 1: No Offgrid Coins
 
-    def collectChestContents(self, chest):
+    def collectChestContents(self, chest: dict):
+        """Liest den Inhalt einer Kiste aus und gibt das enthaltene Item dem Spieler ins Inventar.
+
+        Args:
+            chest (dict): Die Kiste
+        """
         item_id = getattr(chest, 'item', None)
         if item_id:
             print(f"Alle Items: {self.items.items.items()}")
@@ -292,10 +306,21 @@ class Game:
 
 
 
-    def inWorld_ItemSelect(self, itemslot):
+    def inWorld_ItemSelect(self, itemslot: str):
+        """Legt den ausgewählten Item-Slot fest
+
+        Args:
+            itemslot (str): Der ausgewählte Item-Slot
+        """
         self.selected_itemslot = itemslot  # Speichere Auswahl zur Anzeige später
         
-    def execute_command(self, command):
+    def execute_command(self, command: str):
+        """Liest die Eingabe aus der Konsole ein und führt den Befehl aus
+        Wenn der Befehl erfolgreich ausgeführt wurde, wird eine Nachricht der Konsolenausgabe angefügt.
+
+        Args:
+            command (str): Der auszuführende Befehl
+        """
         try:
             parts = command.strip().split()
             if not parts:
@@ -420,6 +445,8 @@ class Game:
             self.logtxt.append(f"[ERROR] [{datetime.datetime.now().strftime('%H:%M:%S.%f')}] Command execution failed: {str(e)}")
 
     def reset(self):
+        """Setzt einige game Variablen zurück
+        """
         # Reset game state
         self.player = Player(self, (self.tilemap.playerSpawn()[0], self.tilemap.playerSpawn()[1]), (5, 13))
         self.enemies.clear()
@@ -439,11 +466,15 @@ class Game:
         self.physicsentities.append(self.enemyA)
 
     def setup_debug_window(self):
+        """Bereitet das Debug-Fenster vor
+        """
         self.debug_window = Window("Debug Info", size=(400, 300), position=(50, 50))
         self.debug_renderer = Renderer(self.debug_window)
 
 
     def debug(self):
+        """Aktualisiert das Debug-Fenster
+        """
         # Debug-Surface leeren (schwarz füllen)
         self.debugScreen.fill((0, 0, 0))
 
@@ -473,6 +504,8 @@ class Game:
 
     
     def save_console_logs(self):
+        """Speichert den Inhalt der Ingame-Konsole in hidden/latest.log
+        """
         # Inhalt aus console_output in String zusammenfügen
         log_text = "\n".join(self.console_output)
 
@@ -492,6 +525,8 @@ class Game:
 
     
     def run(self):
+        """MAIN GAME LOOP
+        """
         #Main Game Loop
         self.mainstate = "start"
         while True:
