@@ -75,7 +75,7 @@ class Game:
 
         self.notification_manager = NotificationManager(self)
 
-
+        # Ingame Konsole Initialisierung
         self.console_active = False
         self.console_input = ''
         self.console_output = []
@@ -119,7 +119,7 @@ class Game:
         self.enemies = []
         self.physicsentities = []
 
-        self.menu = MainMenu(self)
+        self.menu = MainMenu(self) # Ladem des Main Menus
 
         self.items.loadItems('hidden/items.json') # Items aus hidden/items.json (Liste aller Items) laden
         self.items.list_items("owned")
@@ -138,6 +138,7 @@ class Game:
         for itemslot in self.item_slots.values():
             print(f"{itemslot}")
 
+        # Laden des Sjops
         self.shop = Shop(self)
         self.shop.getShopItems()
         
@@ -200,8 +201,6 @@ class Game:
         self.inMainMenu = False
 
         self.energy = 100 # Energie, z.B. für Sprinten
-
-        # Dynamically add checkpoints based on map data or predefined positions
         
         self.logtxt.append(f"[INFO] [{datetime.datetime.now().strftime('%H:%M:%S.%f')}] Initializing buttons and images...")
         self.resume_img = pygame.image.load("assets/images/button/button_resume.png").convert_alpha()
