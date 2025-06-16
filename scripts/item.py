@@ -21,7 +21,7 @@ class ItemLoader:
                 }
                 exec(code, item_globals)
 
-    def register_hook(self, hook_func: function):
+    def register_hook(self, hook_func):
         """Registriert eine Hook-Funktion, die aufgerufen wird, wenn das Item geladen wird.
         Args:
             hook_func (function): Die Funktion, die als Hook registriert werden soll.
