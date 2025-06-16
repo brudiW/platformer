@@ -3,11 +3,13 @@
 Mods müssen in den Ordner *assets/mods* gelegt werden
 
 ## Projektstruktur
+```
 GAME/assets/mods:
-   BeispielMod/  
-      mod.py  
-      assets/  
-         BeispielTextur.png  
+    BeispielMod/
+        mod.py
+        assets/
+            BeispielTextur.png
+```
     
 ## Was kann modifiziert werden?
 * Neue Keybinds
