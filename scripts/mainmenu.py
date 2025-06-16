@@ -40,7 +40,7 @@ class MainMenu:
 		self.video_button = Button(226, 125, self.video_img, 1)
 		self.audio_button = Button(225, 250, self.audio_img, 1)
 		self.back_button = Button(332, 375, self.back_img, 1)
-	def draw_text(self, text: str, font: pygame.font, text_col: pygame.textColor, x: float, y: float):
+	def draw_text(self, text: str, font: pygame.font, text_col, x: float, y: float):
 		"""Zeigt Text auf dem Bildschirm
 
 		Args:
