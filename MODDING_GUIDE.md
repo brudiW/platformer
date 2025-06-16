@@ -28,3 +28,21 @@ GAME/assets/mods:
 * register_hook(hook)
 
 ### Eigene Befehle?
+
+
+## DOKUMENTATION
+### ModLoader
+register_mod():  
+    `register_mod(mod_name, mod_description, mod_author) -> None`
+        
+
+register_hook():  
+    `register_hook(hook_func) -> None`
+
+
+register_command():  
+    `register_command(name, func) -> None`
+
+
+
+
