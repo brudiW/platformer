@@ -12,7 +12,7 @@ def hook():
         return  # Item nicht eingesammelt → abbrechen
        
     if pygame.joystick.get_count() > 0: 
-    	if game.axrX < 0.5:
+    	if game.axrX < -0.5 or game.axrX > 0.5 or game.axrY < -0.5 or game.axrY > 0.5:
             angle = math.degrees(math.asin(game.axrX/(math.sqrt(game.axrX*game.axrX+game.axrY*game.axrY))))
             motion = [0,0]
             motion[1] = math.sin(math.radians(angle))*5
@@ -25,7 +25,7 @@ def hook():
                 #arrowEntity.update()
             game.physicsentities.remove(arrowEntity)
     if pygame.mouse.get_pressed(num_buttons=3)[0]:
-        mouse_pos = pygame.mouse.getPos()
+        mouse_pos = pygame.mouse.get_pos()
         size = game.screen.get_size()
         rel_pos = [0, 0]
         rel_pos[0] = mouse_pos[0] - size[0]/2
