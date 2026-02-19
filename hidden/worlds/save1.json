@@ -35,10 +35,11 @@
         "bogen": {
         "name": "Bogen",
         "description": "Bogen",
-        "effect": "none".
+        "effect": "none",
         "rarety": "Uncommon",
         "durability": -1
     }
     }
 
 }
+
