@@ -1,6 +1,6 @@
 import pygame
 import math
-import asyncio
+#import asyncio
 from scripts.entities import PhysicsEntity
 
 #async def arrow_update_looper(arrowEntity):
