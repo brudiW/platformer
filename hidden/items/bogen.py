@@ -15,7 +15,7 @@ def hook():
             motion = [0,0]
             motion[1] = Math.sin(Math.radians(angle))*5
             motion[0] = Math.sqrt(5*5-motion[1]*motion[1])
-            arrowEntity = PhysicsEntity(game, "arrow", [Math.sqrt(0.7*0.7-(Math.sin(Math.radians(angle))*0.7)*(Math.sin(Math.radians(angle))*0.7))), Math.sin(Math.radians(angle)*0.7)], [0.5, 0.5])
+            arrowEntity = PhysicsEntity(game, "arrow", [Math.sqrt(0.7*0.7-(Math.sin(Math.radians(angle))*0.7)*(Math.sin(Math.radians(angle))*0.7)), Math.sin(Math.radians(angle)*0.7)], [0.5, 0.5])
             arrowEntity.velocity = motion
             game.physicsentities.append(arrowEntity)
             while not arrowEntity.collisions["down"]:
