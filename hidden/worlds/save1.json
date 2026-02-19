@@ -31,6 +31,14 @@
             "effect": "none",
             "rarety": "Impossible",
             "durability": -1
-        }
+        },
+        "bogen": {
+        "name": "Bogen",
+        "description": "Bogen",
+        "effect": "none".
+        "rarety": "Uncommon",
+        "durability": -1
     }
+    }
+
 }
