@@ -12,6 +12,18 @@
         "unlocked": true,
         "type": "collectable",
         "item-code": "schal_der_leichtigkeit.py"
+    },
+    "bogen": {
+        "name": "Bogen",
+        "description": "Bogen",
+        "texture": "none",
+        "effects": {},
+        "rarety": "uncommon",
+        "price": -1,
+        "durability": -1,
+        "unlocked": true,
+        "type": "owned",
+        "item-code": "bogen.py"
     }
     
 }
