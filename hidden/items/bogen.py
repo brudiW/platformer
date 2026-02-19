@@ -3,10 +3,10 @@ import math
 import asyncio
 from scripts.entities import PhysicsEntity
 
-async def arrow_update_looper(arrowEntity):
-    while not arrowEntity.collisions["down"]:
-        arrowEntity.update(game.tilemap, (0.0))
-    game.physicsentities.remove(arrowEntity)
+#async def arrow_update_looper(arrowEntity):
+ #   while not arrowEntity.collisions["down"]:
+  #      arrowEntity.update(game.tilemap, (0.0))
+   # game.physicsentities.remove(arrowEntity)
 
 
 def hook():
@@ -26,7 +26,7 @@ def hook():
             arrowEntity = PhysicsEntity(game, "arrow", [math.sqrt(0.7*0.7-(math.sin(math.radians(angle))*0.7)*(math.sin(math.radians(angle))*0.7)), math.sin(math.radians(angle)*0.7)], [0.5, 0.5])
             arrowEntity.velocity = motion
             game.physicsentities.append(arrowEntity)
-            asyncio.run(arrow_update_looper(arrowEntity))
+            #asyncio.run(arrow_update_looper(arrowEntity))
     if pygame.mouse.get_pressed(num_buttons=3)[0]:
         mouse_pos = pygame.mouse.get_pos()
         size = game.screen.get_size()
@@ -40,7 +40,7 @@ def hook():
         arrowEntity = PhysicsEntity(game, "arrow", [math.sqrt(0.7*0.7-(math.sin(math.radians(angle))*0.7)*(math.sin(math.radians(angle))*0.7)), math.sin(math.radians(angle)*0.7)], [0.5, 0.5])
         arrowEntity.velocity = motion
         game.physicsentities.append(arrowEntity)
-        asyncio.run(arrow_update_looper(arrowEntity))
+        #asyncio.run(arrow_update_looper(arrowEntity))
 
 
 register_hook(hook)
